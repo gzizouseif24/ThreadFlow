@@ -14,6 +14,17 @@
 	let editContent = $state(tab.content);
 	let imageInput = $state('');
 
+	// Calculate card width based on content length - more granular
+	const cardWidth = $derived(() => {
+		const contentLength = tab.content.length;
+		// Base width + proportional increase
+		const baseWidth = 160;
+		const charWidth = 2.5; // pixels per character
+		const calculatedWidth = baseWidth + (contentLength * charWidth);
+		// Clamp between min and max
+		return Math.min(Math.max(calculatedWidth, 180), 400);
+	});
+
 	function handleEdit() {
 		isEditing = true;
 		editContent = tab.content;
@@ -72,9 +83,10 @@
 </script>
 
 <div
-	class="tab-card group relative rounded-xl border-0 p-3 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] {tab.isCompleted
+	class="tab-card group relative rounded-xl border-0 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] {tab.isCompleted
 		? 'bg-white/40 opacity-70'
 		: 'bg-white/60 shadow-md hover:shadow-lg'}"
+	style="width: {cardWidth()}px; padding: 12px;"
 >
 	<!-- Pin Badge -->
 	{#if tab.isPinned}
@@ -129,7 +141,7 @@
 				</div>
 			{/if}
 
-			<p class="flex-1 text-sm text-gray-800 {tab.isCompleted ? 'line-through' : ''}">
+			<p class="flex-1 text-sm text-gray-800 break-words {tab.isCompleted ? 'line-through' : ''}">
 				{tab.content}
 			</p>
 		</div>

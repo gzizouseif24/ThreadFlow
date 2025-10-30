@@ -70,7 +70,6 @@
 				onDragEnd: (data) => handleRootTaskDragEnd(tab, data)
 			}}
 			class="absolute cursor-move z-10"
-			style="width: 240px;"
 		>
 			<TabCard {tab} />
 		</div>

@@ -24,4 +24,30 @@ export interface Project {
 	imageUrl?: string; // Optional project icon/image
 	createdAt: number;
 	updatedAt: number;
+	
+	// Project details
+	description?: string; // Project description/notes
+	objective?: string; // Main objective/goal
+	deadline?: string; // ISO date string (YYYY-MM-DD)
+	links?: ProjectLink[]; // External links/resources
+	resources?: ProjectResource[]; // Documents, files, etc.
+	status?: 'planning' | 'active' | 'paused' | 'completed';
+	tags?: string[]; // Project tags
+}
+
+export interface ProjectLink {
+	id: string;
+	title: string;
+	url: string;
+	type: 'documentation' | 'repository' | 'design' | 'other';
+	createdAt: number;
+}
+
+export interface ProjectResource {
+	id: string;
+	title: string;
+	description?: string;
+	url?: string; // External URL or file path
+	type: 'document' | 'image' | 'video' | 'other';
+	createdAt: number;
 }

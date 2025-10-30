@@ -7,6 +7,7 @@
 	import confetti from 'canvas-confetti';
 	import { onMount } from 'svelte';
 	import { fileToBase64, cacheRemoteImage, isValidImageFile, compressImage } from '$lib/utils/imageHandler';
+	import ProjectDetailModal from './ProjectDetailModal.svelte';
 
 	let {
 		project,
@@ -17,6 +18,7 @@
 	} = $props();
 
 	let cardElement: HTMLDivElement;
+	let showDetailModal = $state(false);
 
 	let isEditing = $state(false);
 	let editName = $state(project.name);
@@ -372,32 +374,24 @@
 			</div>
 		{:else}
 			<div class="flex items-center justify-between gap-2">
-				<div class="flex items-center gap-2 flex-1">
+				<button
+					onclick={() => (showDetailModal = true)}
+					class="flex items-center gap-2 flex-1 hover:opacity-80 transition"
+				>
 					{#if project.imageUrl}
-						<button
-							onclick={startEditingProjectImage}
-							class="flex-shrink-0 hover:opacity-70 transition-opacity"
-							title="Edit project image"
-						>
-							<img src={project.imageUrl} alt="Project icon" class="w-12 h-12 rounded-lg object-cover shadow-sm" />
-						</button>
+						<img src={project.imageUrl} alt="Project icon" class="w-12 h-12 rounded-lg object-cover shadow-sm flex-shrink-0" />
 					{:else}
-						<button
-							onclick={startEditingProjectImage}
-							class="flex-shrink-0 w-12 h-12 rounded-lg bg-white/60 hover:bg-white/80 flex items-center justify-center transition-all"
-							title="Add project image"
-						>
+						<div class="flex-shrink-0 w-12 h-12 rounded-lg bg-white/60 flex items-center justify-center">
 							<Image size={24} class="text-gray-500" />
-						</button>
+						</div>
 					{/if}
-					<button
-						type="button"
-						ondblclick={handleNameEdit}
-						class="flex-1 text-left text-lg font-bold text-gray-800 hover:text-gray-600 transition-colors"
-					>
-						{project.name}
-					</button>
-				</div>
+					<div class="flex-1 text-left">
+						<h3 class="text-lg font-bold text-gray-800">{project.name}</h3>
+						{#if project.objective}
+							<p class="text-xs text-gray-600 line-clamp-1">{project.objective}</p>
+						{/if}
+					</div>
+				</button>
 
 				<span class="text-xs text-gray-600 font-semibold bg-white/70 px-2 py-1 rounded-full">
 					{tasks.length}
@@ -640,6 +634,9 @@
 		</svg>
 	</div>
 </div>
+
+<!-- Project Detail Modal -->
+<ProjectDetailModal {project} bind:isOpen={showDetailModal} onClose={() => (showDetailModal = false)} />
 
 <style>
 	.project-card {

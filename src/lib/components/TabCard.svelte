@@ -2,6 +2,7 @@
 	import type { Tab } from '$lib/types/tab';
 	import { tabsStore } from '$lib/stores/tabs.svelte';
 	import { projectsStore } from '$lib/stores/projects.svelte';
+	import TaskDetailModal from './TaskDetailModal.svelte';
 	import confetti from 'canvas-confetti';
 	import { Check, Undo2, Pin, MapPin, Edit3, Trash2, Image as ImageIcon, X, FolderPlus } from 'lucide-svelte';
 
@@ -10,6 +11,7 @@
 	}
 
 	let { tab }: Props = $props();
+	let showDetailModal = $state(false);
 	let isEditing = $state(false);
 	let editContent = $state(tab.content);
 	let imageInput = $state('');
@@ -83,10 +85,10 @@
 </script>
 
 <div
-	class="tab-card group relative rounded-xl border-0 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] {tab.isCompleted
-		? 'bg-white/40 opacity-70'
-		: 'bg-white/60 shadow-md hover:shadow-lg'}"
-	style="width: {cardWidth()}px; padding: 12px;"
+	class="tab-card group relative rounded-xl border border-white/30 backdrop-blur-md transition-all duration-300 hover:scale-[1.03] hover:-translate-y-1 {tab.isCompleted
+		? 'bg-white/20 opacity-70 shadow-sm'
+		: 'bg-white/30 shadow-lg hover:shadow-2xl hover:bg-white/40'}"
+	style="width: {cardWidth()}px; padding: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);"
 >
 	<!-- Pin Badge -->
 	{#if tab.isPinned}
@@ -122,7 +124,10 @@
 		</div>
 	{:else}
 		<!-- Content with optional icon/logo -->
-		<div class="mb-2 flex items-start gap-2">
+		<button
+			onclick={() => (showDetailModal = true)}
+			class="mb-2 flex items-start gap-2 w-full text-left hover:opacity-80 transition"
+		>
 			<!-- Image as Icon/Logo -->
 			{#if tab.imageUrl}
 				<div class="relative flex-shrink-0">
@@ -132,7 +137,10 @@
 						class="h-10 w-10 rounded-lg object-cover shadow-sm"
 					/>
 					<button
-						onclick={handleRemoveImage}
+						onclick={(e) => {
+							e.stopPropagation();
+							handleRemoveImage();
+						}}
 						class="absolute -right-1 -top-1 rounded-full bg-white/90 p-0.5 shadow-md opacity-0 group-hover:opacity-100 transition hover:bg-white"
 						title="Remove image"
 					>
@@ -141,10 +149,15 @@
 				</div>
 			{/if}
 
-			<p class="flex-1 text-sm text-gray-800 break-words {tab.isCompleted ? 'line-through' : ''}">
-				{tab.content}
-			</p>
-		</div>
+			<div class="flex-1">
+				<p class="text-sm text-gray-800 break-words {tab.isCompleted ? 'line-through' : ''}">
+					{tab.content}
+				</p>
+				{#if tab.notes}
+					<p class="text-xs text-gray-500 mt-1 line-clamp-1">{tab.notes}</p>
+				{/if}
+			</div>
+		</button>
 
 		<!-- Image Input (only show when no image) -->
 		{#if !tab.imageUrl}
@@ -165,13 +178,13 @@
 		<div class="flex gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
 			<button
 				onclick={handleToggleComplete}
-				class="flex items-center justify-center rounded-md bg-pastel-mint p-1.5 transition hover:bg-pastel-mint/80"
+				class="flex items-center justify-center rounded-md bg-green-400 p-1.5 transition hover:bg-green-500 hover:scale-110 shadow-sm"
 				title={tab.isCompleted ? 'Mark incomplete' : 'Mark complete'}
 			>
 				{#if tab.isCompleted}
-					<Undo2 size={14} class="text-gray-700" />
+					<Undo2 size={14} class="text-white" />
 				{:else}
-					<Check size={14} class="text-gray-700" />
+					<Check size={14} class="text-white" />
 				{/if}
 			</button>
 			<div class="relative">
@@ -180,10 +193,10 @@
 						e.stopPropagation();
 						toggleProjectMenu();
 					}}
-					class="flex items-center justify-center rounded-md bg-pastel-peach p-1.5 transition hover:bg-pastel-peach/80"
+					class="flex items-center justify-center rounded-md bg-orange-400 p-1.5 transition hover:bg-orange-500 hover:scale-110 shadow-sm"
 					title="Add to project"
 				>
-					<MapPin size={14} class="text-gray-700" />
+					<MapPin size={14} class="text-white" />
 				</button>
 				{#if showProjectMenu}
 					<div class="absolute bottom-full left-0 mb-1 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-[9999] min-w-[180px]">
@@ -209,21 +222,24 @@
 			</div>
 			<button
 				onclick={handleEdit}
-				class="flex items-center justify-center rounded-md bg-pastel-sky p-1.5 transition hover:bg-pastel-sky/80"
+				class="flex items-center justify-center rounded-md bg-blue-400 p-1.5 transition hover:bg-blue-500 hover:scale-110 shadow-sm"
 				title="Edit"
 			>
-				<Edit3 size={14} class="text-gray-700" />
+				<Edit3 size={14} class="text-white" />
 			</button>
 			<button
 				onclick={() => tabsStore.delete(tab.id)}
-				class="flex items-center justify-center rounded-md bg-pastel-pink p-1.5 transition hover:bg-pastel-pink/80"
+				class="flex items-center justify-center rounded-md bg-red-400 p-1.5 transition hover:bg-red-500 hover:scale-110 shadow-sm"
 				title="Delete"
 			>
-				<Trash2 size={14} class="text-gray-700" />
+				<Trash2 size={14} class="text-white" />
 			</button>
 		</div>
 	{/if}
 </div>
+
+<!-- Task Detail Modal -->
+<TaskDetailModal {tab} bind:isOpen={showDetailModal} onClose={() => (showDetailModal = false)} />
 
 <style>
 	.tab-card {

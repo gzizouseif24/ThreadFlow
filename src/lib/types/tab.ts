@@ -10,6 +10,8 @@ export interface Tab {
 	updatedAt: number;
 	position?: { x: number; y: number };
 	imageUrl?: string;
+	notes?: string; // Additional notes/details
+	tags?: string[]; // Tags for categorization
 }
 
 export interface Project {

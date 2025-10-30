@@ -1,8 +1,14 @@
 <script lang="ts">
 	import { journalStore } from '$lib/stores/journal.svelte';
 	import { tabsStore } from '$lib/stores/tabs.svelte';
+	import { projectsStore } from '$lib/stores/projects.svelte';
 	import { formatDate } from '$lib/utils/dateUtils';
-	import { Check, FileText, Lightbulb } from 'lucide-svelte';
+	import { parseMarkdown } from '$lib/utils/markdown';
+	import { ListTodo, FileText, Lightbulb, Eye, Edit, Circle, EyeOff } from 'lucide-svelte';
+
+	let showNotesPreview = $state(false);
+	let showReflectionPreview = $state(false);
+	let showTodoList = $state(true);
 
 	let { selectedDate }: { selectedDate: Date } = $props();
 
@@ -26,14 +32,17 @@
 		}, 0);
 	});
 
-	// Get completed tasks for this date
-	const completedTasks = $derived(
-		tabsStore.tabs.filter((t) => {
-			if (!t.isCompleted) return false;
-			const taskDate = new Date(t.updatedAt);
-			return taskDate.toDateString() === selectedDate.toDateString();
-		})
+	// Get current tasks to do (not completed, not deleted)
+	const currentTasks = $derived(
+		tabsStore.activeTabs.filter((t) => !t.isCompleted)
 	);
+
+	// Get project for a task
+	function getProjectForTask(taskId: string) {
+		const task = tabsStore.tabs.find(t => t.id === taskId);
+		if (!task?.parentId) return null;
+		return projectsStore.projects.find(p => p.id === task.parentId);
+	}
 
 	function adjustHeight(textarea: HTMLTextAreaElement) {
 		if (!textarea) return;
@@ -53,7 +62,7 @@
 		journalStore.createOrUpdate(dateString, {
 			notes,
 			reflection,
-			completedTaskIds: completedTasks.map((t) => t.id)
+			completedTaskIds: []
 		});
 	}
 </script>
@@ -73,51 +82,126 @@
 
 	<!-- Notes Section -->
 	<div class="mb-6">
-		<label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-			<FileText size={16} />
-			Today's Notes
-		</label>
-		<textarea
-			bind:this={notesTextarea}
-			bind:value={notes}
-			oninput={handleNotesInput}
-			onblur={saveEntry}
-			placeholder="What happened today?..."
-			class="w-full px-4 py-3 rounded-lg border-2 border-white/40 bg-white/60 backdrop-blur-sm focus:border-pastel-lavender focus:outline-none resize-none text-sm overflow-hidden"
-			style="min-height: 80px;"
-		></textarea>
+		<div class="flex items-center justify-between mb-2">
+			<label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+				<FileText size={16} />
+				Today's Notes
+			</label>
+			<button
+				onclick={() => (showNotesPreview = !showNotesPreview)}
+				class="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-white/40 transition text-xs text-gray-600"
+				title={showNotesPreview ? 'Edit' : 'Preview'}
+			>
+				{#if showNotesPreview}
+					<Edit size={12} />
+					Edit
+				{:else}
+					<Eye size={12} />
+					Preview
+				{/if}
+			</button>
+		</div>
+		{#if showNotesPreview}
+			<div
+				class="w-full min-h-[80px] px-4 py-3 rounded-lg border-2 border-white/40 bg-white/60 backdrop-blur-sm text-sm prose prose-sm max-w-none"
+			>
+				{@html parseMarkdown(notes)}
+			</div>
+		{:else}
+			<textarea
+				bind:this={notesTextarea}
+				bind:value={notes}
+				oninput={handleNotesInput}
+				onblur={saveEntry}
+				placeholder="What happened today? (Markdown: **bold**, *italic*, # headers, - lists)"
+				class="w-full px-4 py-3 rounded-lg border-2 border-white/40 bg-white/60 backdrop-blur-sm focus:border-pastel-lavender focus:outline-none resize-none text-sm overflow-hidden"
+				style="min-height: 80px;"
+			></textarea>
+		{/if}
 	</div>
 
-	<!-- Completed Tasks -->
-	{#if completedTasks.length > 0}
+	<!-- Current Tasks To Do -->
+	{#if currentTasks.length > 0}
 		<div class="mb-6">
-			<label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-				<Check size={16} />
-				Completed Today ({completedTasks.length})
-			</label>
-			<div class="space-y-2">
-				{#each completedTasks as task}
-					<div class="flex items-center gap-2 px-3 py-2 bg-white/60 rounded-lg">
-						<Check size={14} class="text-pastel-mint" />
-						<span class="text-sm text-gray-700">{task.content}</span>
-					</div>
-				{/each}
+			<div class="flex items-center justify-between mb-2">
+				<label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+					<ListTodo size={16} />
+					Tasks To Do ({currentTasks.length})
+				</label>
+				<button
+					onclick={() => (showTodoList = !showTodoList)}
+					class="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-white/40 transition text-xs text-gray-600"
+					title={showTodoList ? 'Hide' : 'Show'}
+				>
+					{#if showTodoList}
+						<Eye size={12} />
+						Hide
+					{:else}
+						<Eye size={12} />
+						Show
+					{/if}
+				</button>
 			</div>
+			{#if showTodoList}
+				<div class="space-y-2 max-h-64 overflow-y-auto">
+					{#each currentTasks as task}
+						{@const project = getProjectForTask(task.id)}
+						<div class="flex items-start gap-2 px-3 py-2 bg-white/60 rounded-lg hover:bg-white/70 transition">
+							<Circle size={14} class="text-gray-400 mt-0.5 flex-shrink-0" />
+							<div class="flex-1 min-w-0">
+								<p class="text-sm text-gray-800 break-words">{task.content}</p>
+								{#if project}
+									<div class="flex items-center gap-1 mt-1">
+										<div 
+											class="w-2 h-2 rounded-full" 
+											style="background-color: {project.color};"
+										></div>
+										<span class="text-xs text-gray-500">{project.name}</span>
+									</div>
+								{/if}
+							</div>
+						</div>
+					{/each}
+				</div>
+			{/if}
 		</div>
 	{/if}
 
 	<!-- Reflection Section -->
 	<div>
-		<label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-			<Lightbulb size={16} />
-			Evening Reflection
-		</label>
-		<textarea
-			bind:value={reflection}
-			onblur={saveEntry}
-			placeholder="How do you feel about today?..."
-			class="w-full h-24 px-4 py-3 rounded-lg border-2 border-white/40 bg-white/60 backdrop-blur-sm focus:border-pastel-lavender focus:outline-none resize-none text-sm"
-		></textarea>
+		<div class="flex items-center justify-between mb-2">
+			<label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+				<Lightbulb size={16} />
+				Evening Reflection
+			</label>
+			<button
+				onclick={() => (showReflectionPreview = !showReflectionPreview)}
+				class="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-white/40 transition text-xs text-gray-600"
+				title={showReflectionPreview ? 'Edit' : 'Preview'}
+			>
+				{#if showReflectionPreview}
+					<Edit size={12} />
+					Edit
+				{:else}
+					<Eye size={12} />
+					Preview
+				{/if}
+			</button>
+		</div>
+		{#if showReflectionPreview}
+			<div
+				class="w-full min-h-24 px-4 py-3 rounded-lg border-2 border-white/40 bg-white/60 backdrop-blur-sm text-sm prose prose-sm max-w-none"
+			>
+				{@html parseMarkdown(reflection)}
+			</div>
+		{:else}
+			<textarea
+				bind:value={reflection}
+				onblur={saveEntry}
+				placeholder="How do you feel about today? (Markdown supported)"
+				class="w-full h-24 px-4 py-3 rounded-lg border-2 border-white/40 bg-white/60 backdrop-blur-sm focus:border-pastel-lavender focus:outline-none resize-none text-sm"
+			></textarea>
+		{/if}
 	</div>
 </div>
 

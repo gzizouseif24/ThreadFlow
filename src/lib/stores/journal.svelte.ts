@@ -5,6 +5,8 @@ class JournalStore {
 
 	constructor() {
 		this.entries = this.loadEntries();
+		// Clean up old entries on initialization
+		this.cleanupOldEntries();
 	}
 
 	private loadEntries(): JournalEntry[] {
@@ -65,6 +67,16 @@ class JournalStore {
 				e.notes.toLowerCase().includes(lowerQuery) ||
 				e.reflection.toLowerCase().includes(lowerQuery)
 		);
+	}
+
+	// Remove entries older than today
+	cleanupOldEntries() {
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+		const todayString = today.toISOString().split('T')[0];
+
+		this.entries = this.entries.filter((e) => e.date >= todayString);
+		this.save();
 	}
 }
 

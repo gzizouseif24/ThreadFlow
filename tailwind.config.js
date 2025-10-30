@@ -5,12 +5,12 @@ export default {
     extend: {
       colors: {
         pastel: {
-          pink: '#FF69B4',      // Hot Pink - more vibrant
-          lavender: '#B57EDC',  // Medium Purple - richer
-          mint: '#00E5A0',      // Bright Mint - more saturated
-          peach: '#FFB347',     // Bright Peach - warmer
-          sky: '#4FC3F7',       // Bright Sky Blue - more vivid
-          lilac: '#DA70D6',     // Orchid - more vibrant
+          pink: '#E8A5C0',      // Softer pink - reduced brightness
+          lavender: '#A89BC7',  // Muted lavender - less saturated
+          mint: '#8FD5C1',      // Softer mint - reduced contrast
+          peach: '#E5C4A1',     // Muted peach - warmer but softer
+          sky: '#A8D5E2',       // Softer sky blue - less vivid
+          lilac: '#C9A8D4',     // Softer lilac - reduced vibrancy
         },
       },
     },

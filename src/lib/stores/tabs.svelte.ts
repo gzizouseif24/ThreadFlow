@@ -110,6 +110,20 @@ class TabsStore {
 		this.save();
 	}
 
+	updateNotes(id: string, notes: string) {
+		this.tabs = this.tabs.map((tab) =>
+			tab.id === id ? { ...tab, notes, updatedAt: Date.now() } : tab
+		);
+		this.save();
+	}
+
+	updateTags(id: string, tags: string[]) {
+		this.tabs = this.tabs.map((tab) =>
+			tab.id === id ? { ...tab, tags, updatedAt: Date.now() } : tab
+		);
+		this.save();
+	}
+
 	// Derived getters
 	get activeTabs(): Tab[] {
 		return this.tabs.filter((tab) => !tab.isDeleted);

@@ -40,8 +40,7 @@
 		</div>
 
 		<!-- Center: Branding -->
-		<div class="absolute left-1/2 -translate-x-1/2 flex items-center gap-3">
-			<Sparkles class="text-purple-600 drop-shadow-md" size={32} />
+		<div class="absolute left-1/2 -translate-x-1/2">
 			<h1 class="text-4xl font-bold text-gray-900 drop-shadow-md tracking-tight">Threadflow</h1>
 		</div>
 

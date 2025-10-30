@@ -36,14 +36,6 @@
 </script>
 
 <div class="canvas-board relative h-full w-full overflow-hidden" bind:this={canvasRef}>
-	<!-- Textured Background -->
-	<div class="absolute inset-0 pointer-events-none bg-gradient-to-br from-white/60 via-pastel-sky/30 to-pastel-lavender/40"></div>
-	
-	<!-- Dot Pattern Texture -->
-	<div class="absolute inset-0 pointer-events-none opacity-30" style="background-image: radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px); background-size: 20px 20px;"></div>
-	
-	<!-- Subtle Shadow Overlay -->
-	<div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-black/5"></div>
 	<!-- Project Cards - Draggable like Task Cards -->
 	{#each projects as project (project.id)}
 		<div

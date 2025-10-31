@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { base } from '$app/paths';
 	import { Sparkles, Calendar, Settings, Trash2, LogIn } from 'lucide-svelte';
 	import { tabsStore } from '$lib/stores/tabs.svelte';
 	import JunkDrawer from '$lib/components/JunkDrawer.svelte';
@@ -20,17 +21,18 @@
 		<!-- Left: Navigation -->
 		<div class="flex items-center gap-2 pointer-events-auto">
 			<a
-				href="/"
-				class="px-4 py-2 rounded-full transition-all backdrop-blur-sm {$page.url.pathname === '/'
+				href="{base}/"
+				class="px-4 py-2 rounded-full transition-all backdrop-blur-sm {$page.url.pathname === base + '/' ||
+				$page.url.pathname === base
 					? 'bg-white/60'
 					: 'hover:bg-white/40'}"
 			>
 				Canvas
 			</a>
 			<a
-				href="/journal"
+				href="{base}/journal/"
 				class="px-4 py-2 rounded-full transition-all backdrop-blur-sm flex items-center gap-1 {$page.url
-					.pathname === '/journal'
+					.pathname === base + '/journal/' || $page.url.pathname === base + '/journal'
 					? 'bg-white/60'
 					: 'hover:bg-white/40'}"
 			>

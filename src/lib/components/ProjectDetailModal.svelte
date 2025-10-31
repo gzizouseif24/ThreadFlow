@@ -190,57 +190,56 @@
 		aria-modal="true"
 	>
 		<div
-			class="relative w-[400px] backdrop-blur-md bg-white/80 rounded-2xl border border-white/40 shadow-2xl"
+			class="relative w-[90vw] max-w-4xl max-h-[90vh] overflow-y-auto backdrop-blur-md bg-white/80 rounded-2xl border border-white/40 shadow-2xl"
 			onclick={(e) => e.stopPropagation()}
 		>
 			<!-- Header -->
 			<div 
-				class="px-6 py-4 border-b border-white/40 flex items-center justify-between rounded-t-2xl"
-				style="background-color: {project.color}30;"
+				class="px-4 py-3 border-b border-white/40 flex items-center justify-between rounded-t-2xl"
+				style="background: linear-gradient(135deg, {project.color}20, {project.color}10);"
 			>
-				<div class="flex items-center gap-3">
-					<div
-						class="w-8 h-8 rounded-lg"
-						style="background-color: {project.color};"
-					></div>
-					<h2 class="text-lg font-bold text-gray-800">{project.name}</h2>
+				<div class="flex items-center gap-2">
+					{#if project.imageUrl}
+						<img src={project.imageUrl} alt="" class="w-6 h-6 rounded object-cover" />
+					{/if}
+					<h2 class="text-base font-bold text-gray-800">{project.name}</h2>
 				</div>
 				<button
 					onclick={onClose}
-					class="p-1.5 hover:bg-white/40 rounded-full transition"
+					class="p-1 hover:bg-white/40 rounded-full transition"
 					aria-label="Close"
 				>
-					<X size={18} class="text-gray-600" />
+					<X size={16} class="text-gray-600" />
 				</button>
 			</div>
 
 			<!-- Content -->
-			<div class="p-6 space-y-4">
+			<div class="p-4 space-y-3">
 				<!-- Notes -->
 				<div>
-					<label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-						<FileText size={16} />
+					<label class="flex items-center gap-2 text-xs font-semibold text-gray-700 mb-1.5">
+						<FileText size={14} />
 						Notes
 					</label>
 					<textarea
 						bind:value={description}
 						onblur={saveDescription}
 						placeholder="Project notes..."
-						class="w-full h-32 px-4 py-3 rounded-lg border-2 border-white/40 bg-white/60 backdrop-blur-sm focus:border-pastel-lavender focus:outline-none resize-none text-sm"
+						class="w-full h-20 px-3 py-2 rounded-lg border border-white/40 bg-white/60 backdrop-blur-sm focus:border-pastel-lavender focus:outline-none resize-none text-sm"
 					></textarea>
 				</div>
 
 				<!-- Deadline -->
 				<div>
-					<label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-						<Calendar size={16} />
+					<label class="flex items-center gap-2 text-xs font-semibold text-gray-700 mb-1.5">
+						<Calendar size={14} />
 						Deadline
 					</label>
 					<input
 						type="date"
 						bind:value={deadline}
 						onchange={saveDeadline}
-						class="w-full px-4 py-2 rounded-lg border-2 border-white/40 bg-white/60 backdrop-blur-sm focus:border-pastel-lavender focus:outline-none text-sm"
+						class="w-full px-3 py-2 rounded-lg border border-white/40 bg-white/60 backdrop-blur-sm focus:border-pastel-lavender focus:outline-none text-sm"
 					/>
 					{#if deadline}
 						{@const daysLeft = getDaysUntilDeadline()}
@@ -266,31 +265,31 @@
 
 				<!-- Links Section -->
 				<div>
-					<label class="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
-						<LinkIcon size={16} />
+					<label class="flex items-center gap-2 text-xs font-semibold text-gray-700 mb-1.5">
+						<LinkIcon size={14} />
 						Links
 					</label>
 					
 					{#if project.links && project.links.length > 0}
-						<div class="space-y-2 mb-2">
+						<div class="space-y-1.5 mb-2">
 							{#each project.links as link}
 								{@const Icon = getLinkIcon(link.type)}
-								<div class="flex items-center justify-between px-3 py-2 bg-white/60 rounded-lg">
+								<div class="flex items-center justify-between px-2.5 py-1.5 bg-white/60 rounded-lg">
 									<a
 										href={link.url}
 										target="_blank"
 										rel="noopener noreferrer"
 										class="flex items-center gap-2 flex-1 min-w-0 hover:text-blue-600 transition"
 									>
-										<Icon size={14} class="flex-shrink-0" />
-										<span class="text-sm truncate">{link.title}</span>
+										<Icon size={12} class="flex-shrink-0" />
+										<span class="text-xs truncate">{link.title}</span>
 										<ExternalLink size={10} class="flex-shrink-0" />
 									</a>
 									<button
 										onclick={() => removeLink(link.id)}
 										class="p-1 hover:bg-red-100 rounded transition text-red-600"
 									>
-										<Trash2 size={12} />
+										<Trash2 size={11} />
 									</button>
 								</div>
 							{/each}
@@ -299,23 +298,23 @@
 
 					<!-- Add Link Form -->
 					{#if showAddLink}
-						<div class="space-y-2 mb-2">
+						<div class="space-y-1.5 mb-2">
 							<input
 								type="text"
 								bind:value={newLinkTitle}
 								placeholder="Link title..."
-								class="w-full px-3 py-2 rounded-lg border border-white/40 bg-white/60 focus:border-pastel-lavender focus:outline-none text-sm"
+								class="w-full px-2.5 py-1.5 rounded-lg border border-white/40 bg-white/60 focus:border-pastel-lavender focus:outline-none text-xs"
 							/>
 							<input
 								type="url"
 								bind:value={newLinkUrl}
 								placeholder="https://..."
-								class="w-full px-3 py-2 rounded-lg border border-white/40 bg-white/60 focus:border-pastel-lavender focus:outline-none text-sm"
+								class="w-full px-2.5 py-1.5 rounded-lg border border-white/40 bg-white/60 focus:border-pastel-lavender focus:outline-none text-xs"
 							/>
-							<div class="flex gap-2">
+							<div class="flex gap-1.5">
 								<select
 									bind:value={newLinkType}
-									class="flex-1 px-3 py-2 rounded-lg border border-white/40 bg-white/60 focus:border-pastel-lavender focus:outline-none text-sm"
+									class="flex-1 px-2.5 py-1.5 rounded-lg border border-white/40 bg-white/60 focus:border-pastel-lavender focus:outline-none text-xs"
 								>
 									<option value="documentation">Docs</option>
 									<option value="repository">Repo</option>
@@ -324,7 +323,7 @@
 								</select>
 								<button
 									onclick={addLink}
-									class="px-4 py-2 rounded-lg bg-pastel-mint/60 hover:bg-pastel-mint/80 text-gray-800 font-medium text-sm transition"
+									class="px-3 py-1.5 rounded-lg bg-pastel-mint/60 hover:bg-pastel-mint/80 text-gray-800 font-medium text-xs transition"
 								>
 									Add
 								</button>
@@ -334,9 +333,9 @@
 
 					<button
 						onclick={() => (showAddLink = !showAddLink)}
-						class="w-full px-3 py-2 rounded-lg border border-dashed border-gray-300 hover:border-pastel-mint hover:bg-white/40 transition text-sm text-gray-600 flex items-center justify-center gap-2"
+						class="w-full px-2.5 py-1.5 rounded-lg border border-dashed border-gray-300 hover:border-pastel-mint hover:bg-white/40 transition text-xs text-gray-600 flex items-center justify-center gap-1.5"
 					>
-						<Plus size={14} />
+						<Plus size={12} />
 						{showAddLink ? 'Cancel' : 'Add Link'}
 					</button>
 				</div>

@@ -5,8 +5,7 @@ class JournalStore {
 
 	constructor() {
 		this.entries = this.loadEntries();
-		// Clean up old entries on initialization
-		this.cleanupOldEntries();
+		// Note: cleanupOldEntries() removed - users want to keep their journal history
 	}
 
 	private loadEntries(): JournalEntry[] {
@@ -69,14 +68,11 @@ class JournalStore {
 		);
 	}
 
-	// Remove entries older than today
+	// Keep all journal entries - users want their history preserved
+	// If cleanup is needed in the future, it should be manual user action
 	cleanupOldEntries() {
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
-		const todayString = today.toISOString().split('T')[0];
-
-		this.entries = this.entries.filter((e) => e.date >= todayString);
-		this.save();
+		// Disabled: This was automatically deleting user's journal history
+		// Users should manually delete entries they don't want
 	}
 }
 

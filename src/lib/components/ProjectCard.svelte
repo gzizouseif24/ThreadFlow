@@ -3,7 +3,7 @@
 	import { projectsStore } from '$lib/stores/projects.svelte';
 	import { tabsStore } from '$lib/stores/tabs.svelte';
 	import ColorPicker from './ColorPicker.svelte';
-	import { Trash2, Palette, Pin, MapPin, Edit3, Check, Undo2, Image, Upload, Link } from 'lucide-svelte';
+	import { Trash2, Palette, Pin, MapPin, Edit3, Check, Undo2, Image, Upload, Link, ChevronDown } from 'lucide-svelte';
 	import confetti from 'canvas-confetti';
 	import { onMount } from 'svelte';
 	import { fileToBase64, cacheRemoteImage, isValidImageFile, compressImage } from '$lib/utils/imageHandler';
@@ -11,10 +11,12 @@
 
 	let {
 		project,
-		tasks
+		tasks,
+		autoEdit = false
 	}: {
 		project: Project;
 		tasks: Tab[];
+		autoEdit?: boolean;
 	} = $props();
 
 	let cardElement: HTMLDivElement;
@@ -57,6 +59,13 @@
 			isEditing = false;
 		}
 	}
+
+	// Auto-trigger edit mode for new projects
+	$effect(() => {
+		if (autoEdit && !isEditing) {
+			handleNameEdit();
+		}
+	});
 
 	function handleDelete() {
 		if (confirm(`Delete project "${project.name}"? Tasks will become standalone.`)) {
@@ -374,28 +383,39 @@
 			</div>
 		{:else}
 			<div class="flex items-center justify-between gap-2">
-				<button
-					onclick={() => (showDetailModal = true)}
-					class="flex items-center gap-2 flex-1 hover:opacity-80 transition"
-				>
-					{#if project.imageUrl}
-						<img src={project.imageUrl} alt="Project icon" class="w-12 h-12 rounded-lg object-cover shadow-sm flex-shrink-0" />
-					{:else}
-						<div class="flex-shrink-0 w-12 h-12 rounded-lg bg-white/60 flex items-center justify-center">
-							<Image size={24} class="text-gray-500" />
-						</div>
-					{/if}
-					<div class="flex-1 text-left">
+				<div class="flex items-center gap-2 flex-1">
+					<button
+						onclick={startEditingProjectImage}
+						class="flex-shrink-0"
+						title="Click to edit project icon"
+					>
+						{#if project.imageUrl}
+							<img src={project.imageUrl} alt="Project icon" class="w-12 h-12 rounded-lg object-cover shadow-sm hover:opacity-80 transition" />
+						{:else}
+							<div class="w-12 h-12 rounded-lg bg-white/60 flex items-center justify-center hover:opacity-80 transition">
+								<Image size={24} class="text-gray-500" />
+							</div>
+						{/if}
+					</button>
+					<button
+						onclick={handleNameEdit}
+						class="flex-1 text-left hover:bg-white/30 rounded-lg px-2 py-1 transition"
+						title="Click to edit project name"
+					>
 						<h3 class="text-lg font-bold text-gray-800">{project.name}</h3>
 						{#if project.objective}
 							<p class="text-xs text-gray-600 line-clamp-1">{project.objective}</p>
 						{/if}
-					</div>
-				</button>
+					</button>
+				</div>
 
-				<span class="text-xs text-gray-600 font-semibold bg-white/70 px-2 py-1 rounded-full">
-					{tasks.length}
-				</span>
+				<button
+					onclick={() => (showDetailModal = true)}
+					class="p-1.5 rounded-lg bg-white/50 hover:bg-white/80 transition"
+					title="Open project details"
+				>
+					<ChevronDown size={16} class="text-gray-600" />
+				</button>
 			</div>
 		{/if}
 	</div>

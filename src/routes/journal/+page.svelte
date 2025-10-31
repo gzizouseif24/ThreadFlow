@@ -2,7 +2,10 @@
 	import Calendar from '$lib/components/Calendar.svelte';
 	import DayView from '$lib/components/DayView.svelte';
 
-	let selectedDate = $state(new Date());
+	// Initialize with today's date at midnight for proper calendar selection
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+	let selectedDate = $state(today);
 </script>
 
 <div class="min-h-screen p-6 pt-24">

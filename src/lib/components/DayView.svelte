@@ -196,10 +196,13 @@
 			</div>
 		{:else}
 			<textarea
+				bind:this={reflectionTextarea}
 				bind:value={reflection}
+				oninput={handleReflectionInput}
 				onblur={saveEntry}
 				placeholder="How do you feel about today? (Markdown supported)"
-				class="w-full h-24 px-4 py-3 rounded-lg border-2 border-white/40 bg-white/60 backdrop-blur-sm focus:border-pastel-lavender focus:outline-none resize-none text-sm"
+				class="w-full px-4 py-3 rounded-lg border-2 border-white/40 bg-white/60 backdrop-blur-sm focus:border-pastel-lavender focus:outline-none resize-none text-sm overflow-hidden"
+				style="min-height: 96px;"
 			></textarea>
 		{/if}
 	</div>

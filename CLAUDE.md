@@ -199,6 +199,7 @@ npm run prepare      # Sync SvelteKit configuration
 - When modifying state, always ensure localStorage stays in sync via the storage utility
 - The **confetti animation** on task completion uses canvas-confetti library
 - **Shift+click** interaction pattern in Canvas Board for creating connections
+- DONT RUN NPM RUN DEV OR ANY OTHER COMMANDS LIKE THESE
 
 ## Deployment
 

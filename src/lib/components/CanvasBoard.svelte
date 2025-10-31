@@ -28,10 +28,23 @@
 
 
 
+	let newProjectId: string | null = null;
+
 	function handleAddProject() {
 		const colors = ['#FF69B4', '#B57EDC', '#00E5A0', '#FFB347', '#4FC3F7', '#DA70D6'];
 		const randomColor = colors[Math.floor(Math.random() * colors.length)];
-		projectsStore.add('New Project', randomColor);
+		const projectId = crypto.randomUUID();
+
+		// Create project with temp name
+		projectsStore.add('New Project', randomColor, undefined, projectId);
+
+		// Store the new project ID to trigger edit mode
+		newProjectId = projectId;
+
+		// Reset after a short delay to allow ProjectCard to pick it up
+		setTimeout(() => {
+			newProjectId = null;
+		}, 100);
 	}
 </script>
 
@@ -46,9 +59,10 @@
 			}}
 			class="absolute cursor-move z-0"
 		>
-			<ProjectCard 
-				{project} 
+			<ProjectCard
+				{project}
 				tasks={tabsStore.getTasksByProject(project.id)}
+				autoEdit={project.id === newProjectId}
 			/>
 		</div>
 	{/each}

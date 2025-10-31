@@ -8,9 +8,9 @@ class ProjectsStore {
 		this.projects = storage.getProjects();
 	}
 
-	add(name: string, color: string, position?: { x: number; y: number }) {
+	add(name: string, color: string, position?: { x: number; y: number }, id?: string) {
 		const newProject: Project = {
-			id: crypto.randomUUID(),
+			id: id || crypto.randomUUID(),
 			name,
 			color,
 			position: position || { x: Math.random() * 400, y: Math.random() * 300 },
@@ -21,6 +21,7 @@ class ProjectsStore {
 		};
 		this.projects = [...this.projects, newProject];
 		this.save();
+		return newProject.id;
 	}
 
 	update(id: string, name: string) {

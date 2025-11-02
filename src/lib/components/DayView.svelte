@@ -6,14 +6,14 @@
 	import { parseMarkdown } from '$lib/utils/markdown';
 	import { ListTodo, FileText, Lightbulb, Eye, Edit, Circle, EyeOff } from 'lucide-svelte';
 
-	let showNotesPreview = $state(!!entry?.notes);
-	let showReflectionPreview = $state(!!entry?.reflection);
-	let showTodoList = $state(true);
-
 	let { selectedDate }: { selectedDate: Date } = $props();
 
 	const dateString = $derived(formatDate(selectedDate));
 	const entry = $derived(journalStore.getEntry(dateString));
+
+	let showNotesPreview = $state(!!entry?.notes);
+	let showReflectionPreview = $state(!!entry?.reflection);
+	let showTodoList = $state(true);
 
 	let notes = $state(entry?.notes || '');
 	let reflection = $state(entry?.reflection || '');

@@ -6,8 +6,8 @@
 	import { parseMarkdown } from '$lib/utils/markdown';
 	import { ListTodo, FileText, Lightbulb, Eye, Edit, Circle, EyeOff } from 'lucide-svelte';
 
-	let showNotesPreview = $state(false);
-	let showReflectionPreview = $state(false);
+	let showNotesPreview = $state(!!entry?.notes);
+	let showReflectionPreview = $state(!!entry?.reflection);
 	let showTodoList = $state(true);
 
 	let { selectedDate }: { selectedDate: Date } = $props();
@@ -25,6 +25,9 @@
 	$effect(() => {
 		notes = entry?.notes || '';
 		reflection = entry?.reflection || '';
+		// Set preview mode based on whether content exists
+		showNotesPreview = !!entry?.notes;
+		showReflectionPreview = !!entry?.reflection;
 		// Adjust height after content loads
 		setTimeout(() => {
 			adjustHeight(notesTextarea);

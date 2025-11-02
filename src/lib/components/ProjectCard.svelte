@@ -3,11 +3,10 @@
 	import { projectsStore } from '$lib/stores/projects.svelte';
 	import { tabsStore } from '$lib/stores/tabs.svelte';
 	import ColorPicker from './ColorPicker.svelte';
-	import { Trash2, Palette, Pin, MapPin, Edit3, Check, Undo2, Image, Upload, Link, ChevronDown } from 'lucide-svelte';
+	import { Trash2, Palette, Pin, MapPin, Edit3, Check, Undo2, Image, Upload, Link } from 'lucide-svelte';
 	import confetti from 'canvas-confetti';
 	import { onMount } from 'svelte';
 	import { fileToBase64, cacheRemoteImage, isValidImageFile, compressImage } from '$lib/utils/imageHandler';
-	import ProjectDetailModal from './ProjectDetailModal.svelte';
 
 	let {
 		project,
@@ -20,7 +19,6 @@
 	} = $props();
 
 	let cardElement: HTMLDivElement;
-	let showDetailModal = $state(false);
 
 	let isEditing = $state(false);
 	let editName = $state(project.name);
@@ -408,14 +406,6 @@
 						{/if}
 					</button>
 				</div>
-
-				<button
-					onclick={() => (showDetailModal = true)}
-					class="p-1.5 rounded-lg bg-white/50 hover:bg-white/80 transition"
-					title="Open project details"
-				>
-					<ChevronDown size={16} class="text-gray-600" />
-				</button>
 			</div>
 		{/if}
 	</div>
@@ -654,9 +644,6 @@
 		</svg>
 	</div>
 </div>
-
-<!-- Project Detail Modal -->
-<ProjectDetailModal {project} bind:isOpen={showDetailModal} onClose={() => (showDetailModal = false)} />
 
 <style>
 	.project-card {

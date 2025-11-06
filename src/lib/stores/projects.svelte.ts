@@ -71,6 +71,13 @@ class ProjectsStore {
 		this.save();
 	}
 
+	toggleExpanded(id: string) {
+		this.projects = this.projects.map((p) =>
+			p.id === id ? { ...p, isExpanded: !p.isExpanded, updatedAt: Date.now() } : p
+		);
+		this.save();
+	}
+
 	private save() {
 		storage.setProjects(this.projects);
 	}

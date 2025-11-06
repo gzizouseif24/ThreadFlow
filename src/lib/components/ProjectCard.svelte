@@ -3,7 +3,7 @@
 	import { projectsStore } from '$lib/stores/projects.svelte';
 	import { tabsStore } from '$lib/stores/tabs.svelte';
 	import ColorPicker from './ColorPicker.svelte';
-	import { Trash2, Palette, Pin, MapPin, Edit3, Check, Undo2, Image, Upload, Link, ChevronUp, ChevronDown } from 'lucide-svelte';
+import { Trash2, Palette, Pin, MapPin, Edit3, Check, Undo2, Image, Upload, Link, ChevronUp, ChevronDown, ChevronRight } from 'lucide-svelte';
 	import confetti from 'canvas-confetti';
 	import { onMount } from 'svelte';
 	// Removed svelte-dnd-action imports - using arrow buttons instead
@@ -381,7 +381,7 @@ let {
 <div
 	bind:this={cardElement}
 	class="project-card group relative rounded-xl border-0 backdrop-blur-sm shadow-md hover:shadow-lg overflow-hidden flex flex-col {isResizing ? '' : 'transition-all duration-300 hover:scale-[1.01]'}"
-	style="background-color: {project.color}30; width: {project.width}px; height: {project.height}px;"
+	style="background-color: {project.color}30; width: {project.isExpanded ? project.width : 200}px; height: {project.isExpanded ? project.height : 80}px;"
 >
 	<!-- Project Header -->
 	<div class="mb-3 px-4 pt-4 flex-shrink-0">
@@ -453,8 +453,19 @@ let {
 						title="Click to edit project name"
 					>
 						<h3 class="text-lg font-bold text-gray-800">{project.name}</h3>
-						{#if project.objective}
+						{#if project.objective && project.isExpanded}
 							<p class="text-xs text-gray-600 line-clamp-1">{project.objective}</p>
+						{/if}
+					</button>
+					<button
+						onclick={() => projectsStore.toggleExpanded(project.id)}
+						class="flex-shrink-0 p-1.5 hover:bg-white/40 rounded-md transition"
+						title={project.isExpanded ? 'Collapse' : 'Expand'}
+					>
+						{#if project.isExpanded}
+							<ChevronDown size={18} class="text-gray-600" />
+						{:else}
+							<ChevronRight size={18} class="text-gray-600" />
 						{/if}
 					</button>
 				</div>
@@ -463,6 +474,7 @@ let {
 	</div>
 
 	<!-- Tasks Container with svelte-dnd-action -->
+	{#if project.isExpanded}
 	<div class="space-y-2 min-h-[120px] overflow-y-auto pr-1 px-4 flex-1">
 		{#if localTasksOrder.length === 0 && !showTaskInput}
 			<div class="flex items-center justify-center py-10 text-center">
@@ -596,8 +608,10 @@ let {
 			</button>
 		{/if}
 	</div>
+	{/if}
 
 	<!-- Action Buttons (show on hover) - Fixed at bottom -->
+	{#if project.isExpanded}
 	<div class="flex gap-1.5 mt-3 pt-3 px-4 pb-4 border-t border-white/30 opacity-0 transition-opacity group-hover:opacity-100 flex-shrink-0">
 		<div class="relative flex-1">
 			<button
@@ -630,11 +644,13 @@ let {
 			class="flex-1 flex items-center justify-center gap-1 rounded-md bg-pastel-pink p-1.5 transition hover:bg-pastel-pink/80"
 			title="Delete project"
 		>
-			<Trash2 class="w-4 h-4 text-gray-700" />
+		<Trash2 class="w-4 h-4 text-gray-700" />
 		</button>
 	</div>
+	{/if}
 
 	<!-- Resize Handle -->
+	{#if project.isExpanded}
 	<div
 		class="absolute bottom-0 right-0 w-8 h-8 cursor-nwse-resize opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
 		onmousedown={handleResizeStart}
@@ -645,6 +661,7 @@ let {
 			<path d="M21 15l-6 6M21 9l-12 12M21 3l-18 18" />
 		</svg>
 	</div>
+	{/if}
 </div>
 
 <style>

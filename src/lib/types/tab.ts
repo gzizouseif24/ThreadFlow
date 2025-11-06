@@ -25,4 +25,5 @@ export interface Project {
 	createdAt: number;
 	updatedAt: number;
 	objective?: string; // Main objective/goal
+	isExpanded?: boolean; // Collapse/expand state, defaults to false (minimized)
 }

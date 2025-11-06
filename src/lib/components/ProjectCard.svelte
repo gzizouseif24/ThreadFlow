@@ -381,7 +381,7 @@ let {
 <div
 	bind:this={cardElement}
 	class="project-card group relative rounded-xl border-0 backdrop-blur-sm shadow-md hover:shadow-lg overflow-hidden flex flex-col {isResizing ? '' : 'transition-all duration-300 hover:scale-[1.01]'}"
-	style="background-color: {project.color}30; width: {project.isExpanded ? project.width : 200}px; height: {project.isExpanded ? project.height : 80}px;"
+	style="background-color: {project.color}30; width: {project.isExpanded ? project.width : 350}px; height: {project.isExpanded ? project.height : 80}px;"
 >
 	<!-- Project Header -->
 	<div class="mb-3 px-4 pt-4 flex-shrink-0">

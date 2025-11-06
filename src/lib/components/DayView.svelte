@@ -123,52 +123,6 @@
 		{/if}
 	</div>
 
-	<!-- Current Tasks To Do -->
-	{#if currentTasks.length > 0}
-		<div class="mb-6">
-			<div class="flex items-center justify-between mb-2">
-				<label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
-					<ListTodo size={16} />
-					Tasks To Do ({currentTasks.length})
-				</label>
-				<button
-					onclick={() => (showTodoList = !showTodoList)}
-					class="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-white/40 transition text-xs text-gray-600"
-					title={showTodoList ? 'Hide' : 'Show'}
-				>
-					{#if showTodoList}
-						<Eye size={12} />
-						Hide
-					{:else}
-						<Eye size={12} />
-						Show
-					{/if}
-				</button>
-			</div>
-			{#if showTodoList}
-				<div class="space-y-2 max-h-64 overflow-y-auto">
-					{#each currentTasks as task}
-						{@const project = getProjectForTask(task.id)}
-						<div class="flex items-start gap-2 px-3 py-2 bg-white/60 rounded-lg hover:bg-white/70 transition">
-							<Circle size={14} class="text-gray-400 mt-0.5 flex-shrink-0" />
-							<div class="flex-1 min-w-0">
-								<p class="text-sm text-gray-800 break-words">{task.content}</p>
-								{#if project}
-									<div class="flex items-center gap-1 mt-1">
-										<div 
-											class="w-2 h-2 rounded-full" 
-											style="background-color: {project.color};"
-										></div>
-										<span class="text-xs text-gray-500">{project.name}</span>
-									</div>
-								{/if}
-							</div>
-						</div>
-					{/each}
-				</div>
-			{/if}
-		</div>
-	{/if}
 
 	<!-- Reflection Section -->
 	<div>

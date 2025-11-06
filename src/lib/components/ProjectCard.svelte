@@ -3,19 +3,24 @@
 	import { projectsStore } from '$lib/stores/projects.svelte';
 	import { tabsStore } from '$lib/stores/tabs.svelte';
 	import ColorPicker from './ColorPicker.svelte';
-	import { Trash2, Palette, Pin, MapPin, Edit3, Check, Undo2, Image, Upload, Link } from 'lucide-svelte';
+	import { Trash2, Palette, Pin, MapPin, Edit3, Check, Undo2, Image, Upload, Link, ChevronUp, ChevronDown } from 'lucide-svelte';
 	import confetti from 'canvas-confetti';
 	import { onMount } from 'svelte';
+	// Removed svelte-dnd-action imports - using arrow buttons instead
 	import { fileToBase64, cacheRemoteImage, isValidImageFile, compressImage } from '$lib/utils/imageHandler';
 
-	let {
+let {
 		project,
 		tasks,
-		autoEdit = false
+		autoEdit = false,
+		parentDisableDrag = () => {},
+		parentEnableDrag = () => {}
 	}: {
 		project: Project;
 		tasks: Tab[];
 		autoEdit?: boolean;
+		parentDisableDrag?: () => void;
+		parentEnableDrag?: () => void;
 	} = $props();
 
 	let cardElement: HTMLDivElement;
@@ -37,6 +42,49 @@
 	let resizeStartY = $state(0);
 	let resizeStartWidth = $state(0);
 	let resizeStartHeight = $state(0);
+	
+	// svelte-dnd-action setup
+	// Deduplicate tasks based on ID to prevent duplicate key errors
+	function deduplicateTasks(taskList: Tab[]): Tab[] {
+		const seen = new Set<string>();
+		return taskList.filter(task => {
+			if (seen.has(task.id)) {
+				console.warn(`Duplicate task ID found: ${task.id}`);
+				return false;
+			}
+			seen.add(task.id);
+			return true;
+		});
+	}
+	
+	let localTasksOrder = $state(deduplicateTasks(tasks).map(t => ({ ...t })));
+	
+	// Sync local order with tasks prop
+	$effect(() => {
+		localTasksOrder = deduplicateTasks(tasks).map(t => ({ ...t }));
+	});
+	
+	// Move task up in the list
+	function moveTaskUp(taskId: string) {
+		const index = localTasksOrder.findIndex(t => t.id === taskId);
+		if (index > 0) {
+			const newOrder = [...localTasksOrder];
+			[newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+			localTasksOrder = newOrder;
+			tabsStore.reorderInProject(project.id, newOrder);
+		}
+	}
+	
+	// Move task down in the list
+	function moveTaskDown(taskId: string) {
+		const index = localTasksOrder.findIndex(t => t.id === taskId);
+		if (index < localTasksOrder.length - 1) {
+			const newOrder = [...localTasksOrder];
+			[newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+			localTasksOrder = newOrder;
+			tabsStore.reorderInProject(project.id, newOrder);
+		}
+	}
 
 	function handleNameEdit() {
 		isEditing = true;
@@ -148,7 +196,10 @@
 
 	onMount(() => {
 		document.addEventListener('click', handleClickOutside);
-		return () => document.removeEventListener('click', handleClickOutside);
+		
+		return () => {
+			document.removeEventListener('click', handleClickOutside);
+		};
 	});
 
 	function startEditingImage(taskId: string, currentImageUrl: string) {
@@ -241,6 +292,7 @@
 			cancelProjectImageEdit();
 		}
 	}
+
 
 	function handleAddTask() {
 		if (newTaskContent.trim()) {
@@ -410,163 +462,113 @@
 		{/if}
 	</div>
 
-	<!-- Tasks Container - Simple Display -->
+	<!-- Tasks Container with svelte-dnd-action -->
 	<div class="space-y-2 min-h-[120px] overflow-y-auto pr-1 px-4 flex-1">
-		{#if tasks.length === 0 && !showTaskInput}
+		{#if localTasksOrder.length === 0 && !showTaskInput}
 			<div class="flex items-center justify-center py-10 text-center">
 				<p class="text-gray-400 text-sm">No tasks yet</p>
 			</div>
 		{:else}
-			{#each tasks as task (task.id)}
-				<!-- Mini Task Card inside Project -->
-				<div class="bg-white/60 rounded-lg p-2 text-sm group/task hover:bg-white/80 transition-all">
-					{#if editingTaskId === task.id}
-						<!-- Edit Mode -->
-						<input
-							type="text"
-							bind:value={editTaskContent}
-							onkeydown={handleTaskEditKeydown}
-							onblur={saveTaskEdit}
-							class="w-full px-2 py-1 text-sm border border-pastel-lavender rounded focus:outline-none focus:border-pastel-lilac"
-							autofocus
-						/>
-					{:else if editingImageTaskId === task.id}
-						<!-- Image Edit Mode -->
-						<div class="space-y-1">
-							<div class="flex gap-1">
-								<input
-									type="text"
-									bind:value={editImageUrl}
-									onkeydown={handleImageEditKeydown}
-									placeholder="Image URL..."
-									class="flex-1 px-2 py-1 text-xs border border-pastel-lavender rounded focus:outline-none focus:border-pastel-lilac"
-								/>
-								<label class="px-2 py-1 text-xs rounded bg-pastel-sky hover:bg-pastel-sky/80 cursor-pointer flex items-center">
-									<Upload size={10} />
+			<div class="space-y-2">
+				{#each localTasksOrder as task, index (task.id)}
+					<div class="task-item bg-white/60 rounded-lg p-2 text-sm group/task hover:bg-white/80 transition-all">
+						{#if editingTaskId === task.id}
+							<!-- Edit Mode -->
+							<input
+								type="text"
+								bind:value={editTaskContent}
+								onkeydown={handleTaskEditKeydown}
+								onblur={saveTaskEdit}
+								class="w-full px-2 py-1 text-sm border border-pastel-lavender rounded focus:outline-none focus:border-pastel-lilac"
+								autofocus
+							/>
+						{:else if editingImageTaskId === task.id}
+							<!-- Image Edit Mode -->
+							<div class="space-y-1">
+								<div class="flex gap-1">
 									<input
-										type="file"
-										accept="image/*"
-										onchange={handleTaskImageUpload}
-										class="hidden"
+										type="text"
+										bind:value={editImageUrl}
+										onkeydown={handleImageEditKeydown}
+										placeholder="Image URL..."
+										class="flex-1 px-2 py-1 text-xs border border-pastel-lavender rounded focus:outline-none focus:border-pastel-lilac"
 									/>
-								</label>
+									<label class="px-2 py-1 text-xs rounded bg-pastel-sky hover:bg-pastel-sky/80 cursor-pointer flex items-center">
+										<Upload size={10} />
+										<input
+											type="file"
+											accept="image/*"
+											onchange={handleTaskImageUpload}
+											class="hidden"
+										/>
+									</label>
+								</div>
+								<div class="flex gap-1">
+									<button onclick={saveImageEdit} class="px-2 py-1 text-xs rounded bg-pastel-mint hover:bg-pastel-mint/80 flex items-center gap-1">
+										<Link size={10} />URL
+									</button>
+									<button onclick={cancelImageEdit} class="px-2 py-1 text-xs rounded bg-pastel-pink hover:bg-pastel-pink/80">Cancel</button>
+								</div>
 							</div>
-							<div class="flex gap-1">
-								<button
-									onclick={saveImageEdit}
-									class="px-2 py-1 text-xs rounded bg-pastel-mint hover:bg-pastel-mint/80 flex items-center gap-1"
-								>
-									<Link size={10} />
-									URL
-								</button>
-								<button
-									onclick={cancelImageEdit}
-									class="px-2 py-1 text-xs rounded bg-pastel-pink hover:bg-pastel-pink/80"
-								>
-									Cancel
-								</button>
+						{:else}
+							<!-- Display Mode -->
+							<div class="flex items-start gap-2">
+								<!-- Arrow buttons for reordering -->
+								<div class="flex flex-col flex-shrink-0 opacity-0 group-hover/task:opacity-100 transition-opacity">
+									<button 
+										onclick={() => moveTaskUp(task.id)} 
+										disabled={index === 0}
+										class="p-0.5 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
+										title="Move up"
+									>
+										<ChevronUp size={14} class="text-gray-600" />
+									</button>
+									<button 
+										onclick={() => moveTaskDown(task.id)} 
+										disabled={index === localTasksOrder.length - 1}
+										class="p-0.5 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed"
+										title="Move down"
+									>
+										<ChevronDown size={14} class="text-gray-600" />
+									</button>
+								</div>
+								{#if task.imageUrl}
+									<button onclick={() => startEditingImage(task.id, task.imageUrl || '')} class="flex-shrink-0 hover:opacity-70 transition-opacity">
+										<img src={task.imageUrl} alt="Icon" class="w-6 h-6 rounded object-cover" />
+									</button>
+								{/if}
+								<p class="flex-1 text-gray-800 {task.isCompleted ? 'line-through opacity-60' : ''}">{task.content}</p>
 							</div>
-						</div>
-					{:else}
-						<!-- Display Mode -->
-						<div class="flex items-start gap-2">
-							{#if task.imageUrl}
-								<button
-									onclick={() => startEditingImage(task.id, task.imageUrl || '')}
-									class="flex-shrink-0 hover:opacity-70 transition-opacity"
-									title="Edit image"
-								>
-									<img src={task.imageUrl} alt="Icon" class="w-6 h-6 rounded object-cover" />
-								</button>
-							{/if}
-							<p class="flex-1 text-gray-800 {task.isCompleted ? 'line-through opacity-60' : ''}">
-								{task.content}
-							</p>
-						</div>
 
-						<!-- Mini Actions -->
-						<div class="flex gap-1 mt-1.5 opacity-0 group-hover/task:opacity-100 transition-opacity">
-							<button
-								onclick={() => handleTaskToggleComplete(task.id, task.isCompleted)}
-								class="p-1 rounded bg-pastel-mint hover:bg-pastel-mint/80"
-								title={task.isCompleted ? 'Mark incomplete' : 'Mark complete'}
-							>
-								{#if task.isCompleted}
-									<Undo2 size={12} class="text-gray-700" />
-								{:else}
-									<Check size={12} class="text-gray-700" />
-								{/if}
-							</button>
-							<button
-								onclick={() => startEditingTask(task.id, task.content)}
-								class="p-1 rounded bg-pastel-sky hover:bg-pastel-sky/80"
-								title="Edit task"
-							>
-								<Edit3 size={12} class="text-gray-700" />
-							</button>
-							{#if !task.imageUrl}
-								<button
-									onclick={() => startEditingImage(task.id, '')}
-									class="p-1 rounded bg-pastel-peach hover:bg-pastel-peach/80"
-									title="Add image"
-								>
-									<Image size={12} class="text-gray-700" />
+							<!-- Mini Actions -->
+							<div class="flex gap-1 mt-1.5 opacity-0 group-hover/task:opacity-100 transition-opacity">
+								<button onclick={() => handleTaskToggleComplete(task.id, task.isCompleted)} class="p-1 rounded bg-pastel-mint hover:bg-pastel-mint/80">
+									{#if task.isCompleted}<Undo2 size={12} class="text-gray-700" />{:else}<Check size={12} class="text-gray-700" />{/if}
 								</button>
-							{/if}
-							<div class="relative move-menu-container">
-								<button
-									onclick={(e) => {
-										e.stopPropagation();
-										toggleMoveMenu(task.id);
-									}}
-									class="p-1 rounded bg-pastel-lavender hover:bg-pastel-lavender/80"
-									title="Move to another project"
-								>
-									<MapPin size={12} class="text-gray-700" />
-								</button>
-								{#if showMoveMenu === task.id}
-									<div class="absolute bottom-full left-0 mb-1 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50 min-w-[150px]">
-										{#if otherProjects.length > 0}
-											<div class="px-2 py-1 text-xs font-semibold text-gray-500 border-b border-gray-200">Move to:</div>
-											{#each otherProjects as otherProject}
-												<button
-													onclick={(e) => {
-														e.stopPropagation();
-														moveTaskToProject(task.id, otherProject.id);
-													}}
-													class="w-full px-3 py-1.5 text-left text-xs hover:bg-gray-100 flex items-center gap-2"
-												>
-													<div class="w-3 h-3 rounded-full" style="background-color: {otherProject.color};"></div>
-													{otherProject.name}
-												</button>
-											{/each}
-										{:else}
-											<div class="px-3 py-2 text-xs text-gray-500">No other projects</div>
-										{/if}
-										<button
-											onclick={(e) => {
-												e.stopPropagation();
-												handleRemoveFromProject(task.id);
-												showMoveMenu = null;
-											}}
-											class="w-full px-3 py-1.5 text-left text-xs hover:bg-gray-100 text-gray-600 border-t border-gray-200"
-										>
-											Remove from project
-										</button>
-									</div>
-								{/if}
+								<button onclick={() => startEditingTask(task.id, task.content)} class="p-1 rounded bg-pastel-sky hover:bg-pastel-sky/80"><Edit3 size={12} class="text-gray-700" /></button>
+								{#if !task.imageUrl}<button onclick={() => startEditingImage(task.id, '')} class="p-1 rounded bg-pastel-peach hover:bg-pastel-peach/80"><Image size={12} class="text-gray-700" /></button>{/if}
+								<div class="relative move-menu-container">
+									<button onclick={(e) => { e.stopPropagation(); toggleMoveMenu(task.id); }} class="p-1 rounded bg-pastel-lavender hover:bg-pastel-lavender/80"><MapPin size={12} class="text-gray-700" /></button>
+									{#if showMoveMenu === task.id}
+										<div class="absolute bottom-full left-0 mb-1 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-50 min-w-[150px]">
+											{#if otherProjects.length > 0}
+												<div class="px-2 py-1 text-xs font-semibold text-gray-500 border-b border-gray-200">Move to:</div>
+												{#each otherProjects as otherProject}
+													<button onclick={(e) => { e.stopPropagation(); moveTaskToProject(task.id, otherProject.id); }} class="w-full px-3 py-1.5 text-left text-xs hover:bg-gray-100 flex items-center gap-2">
+														<div class="w-3 h-3 rounded-full" style="background-color: {otherProject.color};"></div>{otherProject.name}
+													</button>
+												{/each}
+											{:else}<div class="px-3 py-2 text-xs text-gray-500">No other projects</div>{/if}
+											<button onclick={(e) => { e.stopPropagation(); handleRemoveFromProject(task.id); showMoveMenu = null; }} class="w-full px-3 py-1.5 text-left text-xs hover:bg-gray-100 text-gray-600 border-t border-gray-200">Remove from project</button>
+										</div>
+									{/if}
+								</div>
+								<button onclick={() => handleTaskDelete(task.id)} class="p-1 rounded bg-pastel-pink hover:bg-pastel-pink/80"><Trash2 size={12} class="text-gray-700" /></button>
 							</div>
-							<button
-								onclick={() => handleTaskDelete(task.id)}
-								class="p-1 rounded bg-pastel-pink hover:bg-pastel-pink/80"
-								title="Delete task"
-							>
-								<Trash2 size={12} class="text-gray-700" />
-							</button>
-						</div>
-					{/if}
-				</div>
-			{/each}
+						{/if}
+					</div>
+				{/each}
+			</div>
 		{/if}
 
 		<!-- Add Task Input -->
@@ -683,5 +685,8 @@
 		background: rgba(0, 0, 0, 0.35);
 	}
 
-
+	/* Clean task item styling */
+	div.task-item {
+		position: relative;
+	}
 </style>

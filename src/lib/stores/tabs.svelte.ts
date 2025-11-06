@@ -8,9 +8,22 @@ class TabsStore {
 		// Load tabs and cleanup old junk
 		let loadedTabs = storage.get();
 		loadedTabs = storage.cleanupOldJunk(loadedTabs);
-		this.tabs = loadedTabs;
-		// Save cleaned data
-		if (loadedTabs.length !== storage.get().length) {
+		
+		// Remove duplicate tasks based on ID
+		const seen = new Set<string>();
+		const deduplicatedTabs = loadedTabs.filter(tab => {
+			if (seen.has(tab.id)) {
+				console.warn(`Removing duplicate task with ID: ${tab.id}`);
+				return false;
+			}
+			seen.add(tab.id);
+			return true;
+		});
+		
+		this.tabs = deduplicatedTabs;
+		
+		// Save cleaned data if any duplicates were removed
+		if (deduplicatedTabs.length !== loadedTabs.length || loadedTabs.length !== storage.get().length) {
 			this.save();
 		}
 	}
@@ -91,8 +104,17 @@ class TabsStore {
 		this.save();
 	}
 
-	reorder(newOrder: Tab[]) {
+reorder(newOrder: Tab[]) {
 		this.tabs = newOrder;
+		this.save();
+	}
+
+	// Reorder tasks within a project
+	reorderInProject(projectId: string | null, newOrder: Tab[]) {
+		// Get all tasks NOT in this project
+		const otherTasks = this.tabs.filter(tab => tab.parentId !== projectId);
+		// Combine: other tasks first, then reordered project tasks
+		this.tabs = [...otherTasks, ...newOrder];
 		this.save();
 	}
 

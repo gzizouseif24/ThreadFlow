@@ -123,41 +123,41 @@
 			</button>
 		</div>
 	{:else}
-		<!-- Content with optional icon/logo -->
+	<!-- Content with optional icon/logo -->
+	<div class="mb-2 flex items-start gap-2 w-full">
+		<!-- Image as Icon/Logo -->
+		{#if tab.imageUrl}
+			<div class="relative flex-shrink-0">
+				<img
+					src={tab.imageUrl}
+					alt="Icon"
+					class="h-10 w-10 rounded-lg object-cover shadow-sm"
+				/>
+				<button
+					onclick={(e) => {
+						e.stopPropagation();
+						handleRemoveImage();
+					}}
+					class="absolute -right-1 -top-1 rounded-full bg-white/90 p-0.5 shadow-md opacity-0 group-hover:opacity-100 transition hover:bg-white"
+					title="Remove image"
+				>
+					<X size={10} class="text-gray-700" />
+				</button>
+			</div>
+		{/if}
+
 		<button
 			onclick={() => (showDetailModal = true)}
-			class="mb-2 flex items-start gap-2 w-full text-left hover:opacity-80 transition"
+			class="flex-1 text-left hover:opacity-80 transition"
 		>
-			<!-- Image as Icon/Logo -->
-			{#if tab.imageUrl}
-				<div class="relative flex-shrink-0">
-					<img
-						src={tab.imageUrl}
-						alt="Icon"
-						class="h-10 w-10 rounded-lg object-cover shadow-sm"
-					/>
-					<button
-						onclick={(e) => {
-							e.stopPropagation();
-							handleRemoveImage();
-						}}
-						class="absolute -right-1 -top-1 rounded-full bg-white/90 p-0.5 shadow-md opacity-0 group-hover:opacity-100 transition hover:bg-white"
-						title="Remove image"
-					>
-						<X size={10} class="text-gray-700" />
-					</button>
-				</div>
+			<p class="text-sm text-gray-800 break-words {tab.isCompleted ? 'line-through' : ''}">
+				{tab.content}
+			</p>
+			{#if tab.notes}
+				<p class="text-xs text-gray-500 mt-1 line-clamp-1">{tab.notes}</p>
 			{/if}
-
-			<div class="flex-1">
-				<p class="text-sm text-gray-800 break-words {tab.isCompleted ? 'line-through' : ''}">
-					{tab.content}
-				</p>
-				{#if tab.notes}
-					<p class="text-xs text-gray-500 mt-1 line-clamp-1">{tab.notes}</p>
-				{/if}
-			</div>
 		</button>
+	</div>
 
 		<!-- Image Input (only show when no image) -->
 		{#if !tab.imageUrl}

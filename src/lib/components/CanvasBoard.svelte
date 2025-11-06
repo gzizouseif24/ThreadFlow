@@ -8,6 +8,7 @@
 	import { Network, Plus } from 'lucide-svelte';
 
 	let canvasRef: HTMLDivElement;
+	let disabledProjectIds = $state<Set<string>>(new Set());
 
 	const projects = $derived(projectsStore.projects);
 	const rootTasks = $derived(tabsStore.rootTasks);
@@ -20,10 +21,25 @@
 	}
 
 	function handleProjectDragEnd(project: Project, data: { offsetX: number; offsetY: number }) {
+		if (disabledProjectIds.has(project.id)) return; // Ignore drag if disabled
 		projectsStore.updatePosition(project.id, {
 			x: data.offsetX,
 			y: data.offsetY
 		});
+	}
+
+	function createDisableProjectDrag(projectId: string) {
+		return () => {
+			disabledProjectIds = new Set([...disabledProjectIds, projectId]);
+		};
+	}
+
+	function createEnableProjectDrag(projectId: string) {
+		return () => {
+			const newSet = new Set(disabledProjectIds);
+			newSet.delete(projectId);
+			disabledProjectIds = newSet;
+		};
 	}
 
 
@@ -55,7 +71,8 @@
 			use:draggable={{
 				position: project.position || { x: 0, y: 0 },
 				bounds: 'parent',
-				onDragEnd: (data) => handleProjectDragEnd(project, data)
+				onDragEnd: (data) => handleProjectDragEnd(project, data),
+				disabled: disabledProjectIds.has(project.id)
 			}}
 			class="absolute cursor-move z-0"
 		>
@@ -63,6 +80,8 @@
 				{project}
 				tasks={tabsStore.getTasksByProject(project.id)}
 				autoEdit={project.id === newProjectId}
+				parentDisableDrag={createDisableProjectDrag(project.id)}
+				parentEnableDrag={createEnableProjectDrag(project.id)}
 			/>
 		</div>
 	{/each}

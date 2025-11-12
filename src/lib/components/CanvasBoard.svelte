@@ -9,6 +9,7 @@
 
 	let canvasRef: HTMLDivElement;
 	let disabledProjectIds = $state<Set<string>>(new Set());
+	let activeProjectId = $state<string | null>(null);
 
 	const projects = $derived(projectsStore.projects);
 	const rootTasks = $derived(tabsStore.rootTasks);
@@ -42,7 +43,14 @@
 		};
 	}
 
-
+	function handleProjectToggle(projectId: string) {
+		const project = projects.find(p => p.id === projectId);
+		// Set as active project when expanding
+		if (project && !project.isExpanded) {
+			activeProjectId = projectId;
+		}
+		projectsStore.toggleExpanded(projectId);
+	}
 
 	let newProjectId: string | null = null;
 
@@ -74,7 +82,7 @@
 				onDragEnd: (data) => handleProjectDragEnd(project, data),
 				disabled: disabledProjectIds.has(project.id)
 			}}
-			class="absolute cursor-move z-0"
+			class="absolute cursor-move {activeProjectId === project.id && project.isExpanded ? 'z-20' : 'z-0'}"
 		>
 			<ProjectCard
 				{project}
@@ -82,6 +90,7 @@
 				autoEdit={project.id === newProjectId}
 				parentDisableDrag={createDisableProjectDrag(project.id)}
 				parentEnableDrag={createEnableProjectDrag(project.id)}
+				onToggleExpand={() => handleProjectToggle(project.id)}
 			/>
 		</div>
 	{/each}

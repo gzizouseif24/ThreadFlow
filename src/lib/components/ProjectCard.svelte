@@ -14,13 +14,15 @@ let {
 		tasks,
 		autoEdit = false,
 		parentDisableDrag = () => {},
-		parentEnableDrag = () => {}
+		parentEnableDrag = () => {},
+		onToggleExpand = () => {}
 	}: {
 		project: Project;
 		tasks: Tab[];
 		autoEdit?: boolean;
 		parentDisableDrag?: () => void;
 		parentEnableDrag?: () => void;
+		onToggleExpand?: () => void;
 	} = $props();
 
 	let cardElement: HTMLDivElement;
@@ -458,7 +460,7 @@ let {
 						{/if}
 					</button>
 					<button
-						onclick={() => projectsStore.toggleExpanded(project.id)}
+						onclick={onToggleExpand}
 						class="flex-shrink-0 p-1.5 hover:bg-white/40 rounded-md transition"
 						title={project.isExpanded ? 'Collapse' : 'Expand'}
 					>

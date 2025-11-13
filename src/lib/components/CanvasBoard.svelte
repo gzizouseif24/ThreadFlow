@@ -58,7 +58,19 @@
 	let newTaskId: string | null = null;
 
 	function handleAddProject() {
-		const colors = ['#FF69B4', '#B57EDC', '#00E5A0', '#FFB347', '#4FC3F7', '#DA70D6'];
+		// Expanded color palette with softer, more appealing colors
+		const colors = [
+			'#FFB6C1', '#FF9999', '#FFB7C5', '#FFA07A', // Pinks & Reds
+			'#E6E6FA', '#DDA0DD', '#CCCCFF', '#C8A2C8', // Purples
+			'#B0E0E6', '#89CFF0', '#87CEEB', '#7FDBFF', // Blues
+			'#98FB98', '#9DC183', '#93E9BE', '#C1FFC1', // Greens
+			'#FFFACD', '#FFEB99', '#FFDAB9', '#FBCEB1', // Yellows & Oranges
+			// Gradients
+			'linear-gradient(135deg, #FFB6C1 0%, #FFA07A 100%)', // Sunset
+			'linear-gradient(135deg, #89CFF0 0%, #7FDBFF 100%)', // Ocean
+			'linear-gradient(135deg, #93E9BE 0%, #98FB98 100%)', // Forest
+			'linear-gradient(135deg, #DDA0DD 0%, #FFB6C1 100%)', // Twilight
+		];
 		const randomColor = colors[Math.floor(Math.random() * colors.length)];
 		const projectId = crypto.randomUUID();
 
@@ -170,11 +182,11 @@
 	<div class="add-menu-container fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
 		<!-- Add Menu Popup -->
 		{#if showAddMenu}
-			<div class="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden animate-slideUp">
+			<div class="backdrop-blur-md bg-white/80 rounded-xl shadow-2xl border border-white/40 overflow-hidden animate-slideUp">
 				<button
 					type="button"
 					onclick={handleAddProject}
-					class="w-full px-6 py-3 flex items-center gap-3 hover:bg-pastel-lavender/30 transition-colors text-left"
+					class="w-full px-6 py-3 flex items-center gap-3 bg-transparent hover:bg-pastel-lavender/30 transition-colors text-left"
 				>
 					<FolderKanban size={20} class="text-pastel-lilac" />
 					<div>
@@ -182,11 +194,11 @@
 						<div class="text-xs text-gray-500">Create a project container</div>
 					</div>
 				</button>
-				<div class="border-t border-gray-200"></div>
+				<div class="border-t border-white/40"></div>
 				<button
 					type="button"
 					onclick={handleAddTask}
-					class="w-full px-6 py-3 flex items-center gap-3 hover:bg-pastel-mint/30 transition-colors text-left"
+					class="w-full px-6 py-3 flex items-center gap-3 bg-transparent hover:bg-pastel-mint/30 transition-colors text-left"
 				>
 					<CheckSquare size={20} class="text-pastel-mint" />
 					<div>

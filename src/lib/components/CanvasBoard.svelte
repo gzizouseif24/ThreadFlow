@@ -54,8 +54,7 @@
 		projectsStore.toggleExpanded(projectId);
 	}
 
-	let newProjectId: string | null = null;
-	let newTaskId: string | null = null;
+	let newProjectId = $state<string | null>(null);
 
 	function handleAddProject() {
 		// Expanded color palette with softer, more appealing colors
@@ -64,12 +63,7 @@
 			'#E6E6FA', '#DDA0DD', '#CCCCFF', '#C8A2C8', // Purples
 			'#B0E0E6', '#89CFF0', '#87CEEB', '#7FDBFF', // Blues
 			'#98FB98', '#9DC183', '#93E9BE', '#C1FFC1', // Greens
-			'#FFFACD', '#FFEB99', '#FFDAB9', '#FBCEB1', // Yellows & Oranges
-			// Gradients
-			'linear-gradient(135deg, #FFB6C1 0%, #FFA07A 100%)', // Sunset
-			'linear-gradient(135deg, #89CFF0 0%, #7FDBFF 100%)', // Ocean
-			'linear-gradient(135deg, #93E9BE 0%, #98FB98 100%)', // Forest
-			'linear-gradient(135deg, #DDA0DD 0%, #FFB6C1 100%)', // Twilight
+			'#FFFACD', '#FFEB99', '#FFDAB9', '#FBCEB1'  // Yellows & Oranges
 		];
 		const randomColor = colors[Math.floor(Math.random() * colors.length)];
 		const projectId = crypto.randomUUID();
@@ -91,21 +85,12 @@
 
 	function handleAddTask() {
 		// Create standalone task with placeholder content
-		const taskId = crypto.randomUUID();
 		const position = {
 			x: Math.random() * 400 + 100,
 			y: Math.random() * 300 + 100
 		};
 
 		tabsStore.add('New Task', position, null);
-
-		// Store the new task ID for potential future auto-edit
-		newTaskId = taskId;
-
-		// Reset after a short delay
-		setTimeout(() => {
-			newTaskId = null;
-		}, 100);
 
 		// Close menu
 		showAddMenu = false;

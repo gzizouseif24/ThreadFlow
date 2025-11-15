@@ -44,7 +44,7 @@
 	function getProjectForTask(taskId: string) {
 		const task = tabsStore.tabs.find(t => t.id === taskId);
 		if (!task?.parentId) return null;
-		return projectsStore.projects.find(p => p.id === task.parentId);
+		return projectsStore.projects.find(p => p.id === task.parentId) || null;
 	}
 
 	function adjustHeight(textarea: HTMLTextAreaElement) {

@@ -45,18 +45,6 @@ let {
 	let resizeStartWidth = $state(0);
 	let resizeStartHeight = $state(0);
 
-	// Helper function to get background style
-	function getBackgroundStyle(): string {
-		const isGradient = project.color.startsWith('linear-gradient');
-		if (isGradient) {
-			// For gradients, create a semi-transparent overlay
-			return `background: ${project.color}, rgba(255, 255, 255, 0.3); background-blend-mode: lighten;`;
-		} else {
-			// For solid colors, use the existing 30% opacity approach
-			return `background-color: ${project.color}30;`;
-		}
-	}
-
 	// svelte-dnd-action setup
 	// Deduplicate tasks based on ID to prevent duplicate key errors
 	function deduplicateTasks(taskList: Tab[]): Tab[] {
@@ -395,7 +383,7 @@ let {
 <div
 	bind:this={cardElement}
 	class="project-card group relative rounded-xl border-0 backdrop-blur-sm shadow-md hover:shadow-lg overflow-hidden flex flex-col {isResizing ? '' : 'transition-all duration-300 hover:scale-[1.01]'}"
-	style="{getBackgroundStyle()} width: {project.isExpanded ? project.width : 350}px; height: {project.isExpanded ? project.height : 80}px;"
+	style="background-color: {project.color}30; width: {project.isExpanded ? project.width : 350}px; height: {project.isExpanded ? project.height : 80}px;"
 >
 	<!-- Project Header -->
 	<div class="mb-3 px-4 pt-4 flex-shrink-0">
@@ -639,7 +627,7 @@ let {
 
 			{#if showColorPicker}
 				<div
-					class="absolute bottom-full left-0 mb-2 p-3 bg-white rounded-lg shadow-xl z-50 border border-gray-200"
+					class="absolute bottom-full left-0 right-0 mb-2 p-3 bg-white rounded-lg shadow-xl z-50 border border-gray-200"
 				>
 					<ColorPicker
 						bind:selectedColor={project.color}

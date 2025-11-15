@@ -26,4 +26,6 @@ export interface Project {
 	updatedAt: number;
 	objective?: string; // Main objective/goal
 	isExpanded?: boolean; // Collapse/expand state, defaults to false (minimized)
+	isPinned?: boolean; // Pin state
+	linkedProjectIds?: string[]; // IDs of linked projects
 }

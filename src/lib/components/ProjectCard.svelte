@@ -8,6 +8,7 @@ import { Trash2, Palette, Pin, MapPin, Edit3, Check, Undo2, Image, Upload, Link,
 	import { onMount } from 'svelte';
 	// Removed svelte-dnd-action imports - using arrow buttons instead
 	import { fileToBase64, cacheRemoteImage, isValidImageFile, compressImage } from '$lib/utils/imageHandler';
+	import { generateIcon, getIconColor } from '$lib/utils/iconGenerator';
 
 let {
 		project,
@@ -66,7 +67,20 @@ let {
 	$effect(() => {
 		localTasksOrder = deduplicateTasks(tasks).map(t => ({ ...t }));
 	});
-	
+
+	// Generate icon and color for project
+	const ProjectIcon = $derived(generateIcon(project.name + ' ' + (project.objective || '')));
+	const projectIconColor = $derived(getIconColor(project.name));
+
+	// Generate icons for tasks
+	function getTaskIcon(task: Tab) {
+		return generateIcon(task.content);
+	}
+
+	function getTaskIconColor(task: Tab) {
+		return getIconColor(task.content);
+	}
+
 	// Move task up in the list
 	function moveTaskUp(taskId: string) {
 		const index = localTasksOrder.findIndex(t => t.id === taskId);
@@ -456,21 +470,13 @@ let {
 				</div>
 			</div>
 		{:else}
+			{@const Icon = ProjectIcon}
 			<div class="flex items-center justify-between gap-2">
 				<div class="flex items-center gap-2 flex-1">
-					<button
-						onclick={startEditingProjectImage}
-						class="flex-shrink-0"
-						title="Click to edit project icon"
-					>
-						{#if project.imageUrl}
-							<img src={project.imageUrl} alt="Project icon" class="w-12 h-12 rounded-lg object-cover shadow-sm hover:opacity-80 transition" />
-						{:else}
-							<div class="w-12 h-12 rounded-lg bg-white/60 flex items-center justify-center hover:opacity-80 transition">
-								<Image size={24} class="text-gray-500" />
-							</div>
-						{/if}
-					</button>
+					<!-- Generated Project Icon -->
+					<div class="w-12 h-12 rounded-lg bg-white/60 flex items-center justify-center shadow-sm">
+						<Icon size={28} class={projectIconColor} />
+					</div>
 					<button
 						onclick={handleNameEdit}
 						class="flex-1 text-left hover:bg-white/30 rounded-lg px-2 py-1 transition"
@@ -513,6 +519,8 @@ let {
 		{:else}
 			<div class="space-y-2">
 				{#each localTasksOrder as task, index (task.id)}
+					{@const TaskIcon = getTaskIcon(task)}
+					{@const taskIconColor = getTaskIconColor(task)}
 					<div class="task-item bg-white/60 rounded-lg p-2 text-sm group/task hover:bg-white/80 transition-all">
 						{#if editingTaskId === task.id}
 							<!-- Edit Mode -->
@@ -574,11 +582,10 @@ let {
 										<ChevronDown size={14} class="text-gray-600" />
 									</button>
 								</div>
-								{#if task.imageUrl}
-									<button onclick={() => startEditingImage(task.id, task.imageUrl || '')} class="flex-shrink-0 hover:opacity-70 transition-opacity">
-										<img src={task.imageUrl} alt="Icon" class="w-6 h-6 rounded object-cover" />
-									</button>
-								{/if}
+								<!-- Generated Task Icon -->
+								<div class="flex-shrink-0 w-6 h-6 rounded bg-white/60 flex items-center justify-center">
+									<TaskIcon size={14} class={taskIconColor} />
+								</div>
 								<p class="flex-1 text-gray-800 {task.isCompleted ? 'line-through opacity-60' : ''}">{task.content}</p>
 							</div>
 
@@ -588,7 +595,6 @@ let {
 									{#if task.isCompleted}<Undo2 size={12} class="text-gray-700" />{:else}<Check size={12} class="text-gray-700" />{/if}
 								</button>
 								<button onclick={() => startEditingTask(task.id, task.content)} class="p-1 rounded bg-pastel-sky hover:bg-pastel-sky/80"><Edit3 size={12} class="text-gray-700" /></button>
-								{#if !task.imageUrl}<button onclick={() => startEditingImage(task.id, '')} class="p-1 rounded bg-pastel-peach hover:bg-pastel-peach/80"><Image size={12} class="text-gray-700" /></button>{/if}
 								<div class="relative move-menu-container">
 									<button onclick={(e) => { e.stopPropagation(); toggleMoveMenu(task.id); }} class="p-1 rounded bg-pastel-lavender hover:bg-pastel-lavender/80"><MapPin size={12} class="text-gray-700" /></button>
 									{#if showMoveMenu === task.id}

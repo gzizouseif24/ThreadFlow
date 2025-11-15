@@ -6,12 +6,13 @@
 	import { tabsStore } from '$lib/stores/tabs.svelte';
 	import { projectsStore } from '$lib/stores/projects.svelte';
 	import type { Tab, Project } from '$lib/types/tab';
-	import { Network, Plus, FolderKanban, CheckSquare } from 'lucide-svelte';
+	import { Network, Plus, FolderKanban, CheckSquare, ZoomIn, ZoomOut, Maximize2 } from 'lucide-svelte';
 
 	let canvasRef: HTMLDivElement;
 	let disabledProjectIds = $state<Set<string>>(new Set());
 	let activeProjectId = $state<string | null>(null);
 	let showAddMenu = $state(false);
+	let zoomLevel = $state(1); // Default zoom level (1 = 100%)
 
 	const projects = $derived(projectsStore.projects);
 	const rootTasks = $derived(tabsStore.rootTasks);
@@ -143,6 +144,32 @@
 		showAddMenu = !showAddMenu;
 	}
 
+	// Zoom functions
+	const MIN_ZOOM = 0.25; // 25%
+	const MAX_ZOOM = 2; // 200%
+	const ZOOM_STEP = 0.1;
+
+	function zoomIn() {
+		zoomLevel = Math.min(zoomLevel + ZOOM_STEP, MAX_ZOOM);
+	}
+
+	function zoomOut() {
+		zoomLevel = Math.max(zoomLevel - ZOOM_STEP, MIN_ZOOM);
+	}
+
+	function resetZoom() {
+		zoomLevel = 1;
+	}
+
+	function handleWheel(e: WheelEvent) {
+		// Only zoom if Ctrl/Cmd is pressed (standard browser zoom behavior)
+		if (e.ctrlKey || e.metaKey) {
+			e.preventDefault();
+			const delta = -e.deltaY / 1000;
+			zoomLevel = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoomLevel + delta));
+		}
+	}
+
 	// Close menu when clicking outside
 	onMount(() => {
 		function handleClickOutside(event: MouseEvent) {
@@ -160,27 +187,32 @@
 	});
 </script>
 
-<div class="canvas-board relative h-full w-full overflow-hidden" bind:this={canvasRef}>
-	<!-- SVG Layer for Project Links -->
-	{#if projectLinks.length > 0}
-		<svg class="absolute inset-0 pointer-events-none z-[5]" style="width: 100%; height: 100%;">
-			{#each projectLinks as link (link.id)}
-				<line
-					x1={link.from.x}
-					y1={link.from.y}
-					x2={link.to.x}
-					y2={link.to.y}
-					stroke={link.color}
-					stroke-width="2"
-					stroke-dasharray="8,4"
-					opacity="0.4"
-					class="transition-all duration-300"
-				/>
-			{/each}
-		</svg>
-	{/if}
+<div class="canvas-board relative h-full w-full overflow-hidden" bind:this={canvasRef} onwheel={handleWheel}>
+	<!-- Zoomable Content Container -->
+	<div
+		class="canvas-content absolute inset-0 transition-transform duration-200"
+		style="transform: scale({zoomLevel}); transform-origin: center center;"
+	>
+		<!-- SVG Layer for Project Links -->
+		{#if projectLinks.length > 0}
+			<svg class="absolute inset-0 pointer-events-none z-[5]" style="width: 100%; height: 100%;">
+				{#each projectLinks as link (link.id)}
+					<line
+						x1={link.from.x}
+						y1={link.from.y}
+						x2={link.to.x}
+						y2={link.to.y}
+						stroke={link.color}
+						stroke-width="2"
+						stroke-dasharray="8,4"
+						opacity="0.4"
+						class="transition-all duration-300"
+					/>
+				{/each}
+			</svg>
+		{/if}
 
-	<!-- Project Cards - Draggable like Task Cards -->
+		<!-- Project Cards - Draggable like Task Cards -->
 	{#each projects as project (project.id)}
 		<div
 			use:draggable={{
@@ -216,14 +248,46 @@
 		</div>
 	{/each}
 
-	<!-- Empty State -->
-	{#if rootTasks.length === 0 && projects.length === 0}
-		<div class="flex h-full flex-col items-center justify-center text-center">
-			<Network class="mb-2 text-pastel-lilac" size={48} />
-			<p class="text-xl font-semibold text-gray-700">Canvas is empty</p>
-			<p class="text-gray-500">Click the + button to create your first project!</p>
-		</div>
-	{/if}
+		<!-- Empty State -->
+		{#if rootTasks.length === 0 && projects.length === 0}
+			<div class="flex h-full flex-col items-center justify-center text-center">
+				<Network class="mb-2 text-pastel-lilac" size={48} />
+				<p class="text-xl font-semibold text-gray-700">Canvas is empty</p>
+				<p class="text-gray-500">Click the + button to create your first project!</p>
+			</div>
+		{/if}
+	</div>
+	<!-- End Zoomable Content Container -->
+
+	<!-- Zoom Controls -->
+	<div class="fixed bottom-6 left-6 z-40 flex flex-col gap-2">
+		<button
+			type="button"
+			onclick={zoomIn}
+			class="w-10 h-10 rounded-lg bg-white/80 backdrop-blur-md hover:bg-white shadow-lg hover:shadow-xl transition-all flex items-center justify-center border border-white/40"
+			title="Zoom In (Ctrl + Scroll)"
+			disabled={zoomLevel >= MAX_ZOOM}
+		>
+			<ZoomIn size={18} class="text-gray-700" />
+		</button>
+		<button
+			type="button"
+			onclick={resetZoom}
+			class="w-10 h-10 rounded-lg bg-white/80 backdrop-blur-md hover:bg-white shadow-lg hover:shadow-xl transition-all flex items-center justify-center border border-white/40 text-xs font-semibold text-gray-700"
+			title="Reset Zoom (100%)"
+		>
+			{Math.round(zoomLevel * 100)}%
+		</button>
+		<button
+			type="button"
+			onclick={zoomOut}
+			class="w-10 h-10 rounded-lg bg-white/80 backdrop-blur-md hover:bg-white shadow-lg hover:shadow-xl transition-all flex items-center justify-center border border-white/40"
+			title="Zoom Out (Ctrl + Scroll)"
+			disabled={zoomLevel <= MIN_ZOOM}
+		>
+			<ZoomOut size={18} class="text-gray-700" />
+		</button>
+	</div>
 
 	<!-- Floating Add Menu -->
 	<div class="add-menu-container fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">

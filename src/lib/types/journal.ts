@@ -18,3 +18,14 @@ export interface CalendarDay {
 	hasEntry: boolean;
 	taskCount: number;
 }
+
+export interface Event {
+	id: string;
+	title: string;
+	description?: string;
+	date: string; // YYYY-MM-DD format
+	time?: string; // HH:MM format (optional)
+	linkedTaskIds?: string[]; // Tasks linked to this event
+	createdAt: number;
+	updatedAt: number;
+}

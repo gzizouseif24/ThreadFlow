@@ -1,5 +1,6 @@
 import type { Project } from '$lib/types/tab';
 import { storage } from '$lib/utils/storage';
+import { tabsStore } from './tabs.svelte';
 
 class ProjectsStore {
 	projects = $state<Project[]>([]);
@@ -60,6 +61,20 @@ class ProjectsStore {
 	}
 
 	delete(id: string) {
+		// Delete all tasks within this project
+		const tasksToDelete = tabsStore.getTasksByProject(id);
+		tasksToDelete.forEach(task => {
+			tabsStore.delete(task.id);
+		});
+
+		// Remove project from any linked projects
+		this.projects.forEach(project => {
+			if (project.linkedProjectIds?.includes(id)) {
+				this.unlinkProjects(project.id, id);
+			}
+		});
+
+		// Delete the project
 		this.projects = this.projects.filter((project) => project.id !== id);
 		this.save();
 	}

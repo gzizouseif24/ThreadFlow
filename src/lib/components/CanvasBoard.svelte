@@ -190,8 +190,13 @@
 <div class="canvas-board relative h-full w-full overflow-hidden" bind:this={canvasRef} onwheel={handleWheel}>
 	<!-- Zoomable Content Container -->
 	<div
-		class="canvas-content absolute inset-0 transition-transform duration-200"
-		style="transform: scale({zoomLevel}); transform-origin: center center;"
+		class="canvas-content absolute transition-all duration-200"
+		style="
+			width: {100 / zoomLevel}%;
+			height: {100 / zoomLevel}%;
+			transform: scale({zoomLevel});
+			transform-origin: top left;
+		"
 	>
 		<!-- SVG Layer for Project Links -->
 		{#if projectLinks.length > 0}
@@ -217,7 +222,6 @@
 		<div
 			use:draggable={{
 				position: project.position || { x: 0, y: 0 },
-				bounds: 'parent',
 				onDragEnd: (data) => handleProjectDragEnd(project, data),
 				disabled: disabledProjectIds.has(project.id)
 			}}
@@ -239,7 +243,6 @@
 		<div
 			use:draggable={{
 				position: tab.position || { x: 0, y: 0 },
-				bounds: 'parent',
 				onDragEnd: (data) => handleRootTaskDragEnd(tab, data)
 			}}
 			class="absolute cursor-move z-10"

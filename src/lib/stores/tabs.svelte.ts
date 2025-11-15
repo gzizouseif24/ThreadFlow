@@ -7,8 +7,9 @@ class TabsStore {
 	constructor() {
 		// Load tabs and cleanup old junk
 		let loadedTabs = storage.get();
+		const initialLength = loadedTabs.length;
 		loadedTabs = storage.cleanupOldJunk(loadedTabs);
-		
+
 		// Remove duplicate tasks based on ID
 		const seen = new Set<string>();
 		const deduplicatedTabs = loadedTabs.filter(tab => {
@@ -19,11 +20,11 @@ class TabsStore {
 			seen.add(tab.id);
 			return true;
 		});
-		
+
 		this.tabs = deduplicatedTabs;
-		
-		// Save cleaned data if any duplicates were removed
-		if (deduplicatedTabs.length !== loadedTabs.length || loadedTabs.length !== storage.get().length) {
+
+		// Save cleaned data if any duplicates or junk were removed
+		if (deduplicatedTabs.length !== initialLength) {
 			this.save();
 		}
 	}

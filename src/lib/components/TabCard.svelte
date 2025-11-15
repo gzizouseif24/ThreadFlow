@@ -17,7 +17,7 @@
 	let imageInput = $state('');
 
 	// Calculate card width based on content length - more granular
-	const cardWidth = $derived(() => {
+	const cardWidth = $derived.by(() => {
 		const contentLength = tab.content.length;
 		// Base width + proportional increase
 		const baseWidth = 160;
@@ -88,7 +88,7 @@
 	class="tab-card group relative rounded-xl border border-white/30 backdrop-blur-md transition-all duration-300 hover:scale-[1.03] hover:-translate-y-1 {tab.isCompleted
 		? 'bg-white/20 opacity-70 shadow-sm'
 		: 'bg-white/30 shadow-lg hover:shadow-2xl hover:bg-white/40'}"
-	style="width: {cardWidth()}px; padding: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);"
+	style="width: {cardWidth}px; padding: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);"
 >
 	<!-- Pin Badge -->
 	{#if tab.isPinned}

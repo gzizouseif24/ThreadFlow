@@ -201,80 +201,16 @@
 		<!-- SVG Layer for Project Links -->
 		{#if projectLinks.length > 0}
 			<svg class="absolute inset-0 pointer-events-none z-[5]" style="width: 100%; height: 100%;">
-				<!-- Define filters for glow effect -->
-				<defs>
-					<filter id="glow">
-						<feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-						<feMerge>
-							<feMergeNode in="coloredBlur"/>
-							<feMergeNode in="SourceGraphic"/>
-						</feMerge>
-					</filter>
-					<filter id="soft-glow">
-						<feGaussianBlur stdDeviation="2" result="blur"/>
-						<feFlood flood-color="white" flood-opacity="0.5"/>
-						<feComposite in2="blur" operator="in"/>
-						<feMerge>
-							<feMergeNode/>
-							<feMergeNode in="SourceGraphic"/>
-						</feMerge>
-					</filter>
-				</defs>
-
 				{#each projectLinks as link (link.id)}
-					<!-- Calculate midpoint for curved path -->
-					{@const midX = (link.from.x + link.to.x) / 2}
-					{@const midY = (link.from.y + link.to.y) / 2}
-					{@const dx = link.to.x - link.from.x}
-					{@const dy = link.to.y - link.from.y}
-					{@const distance = Math.sqrt(dx * dx + dy * dy)}
-					<!-- Curve control point (perpendicular offset) -->
-					{@const offsetX = -dy / distance * Math.min(distance * 0.15, 80)}
-					{@const offsetY = dx / distance * Math.min(distance * 0.15, 80)}
-					{@const controlX = midX + offsetX}
-					{@const controlY = midY + offsetY}
-					{@const pathData = `M ${link.from.x} ${link.from.y} Q ${controlX} ${controlY} ${link.to.x} ${link.to.y}`}
-
-					<!-- Background glow layer -->
-					<path
-						d={pathData}
-						fill="none"
-						stroke="white"
-						stroke-width="8"
-						opacity="0.3"
-						filter="url(#soft-glow)"
-						class="transition-all duration-300"
-					/>
-
-					<!-- Main thick base layer -->
-					<path
-						d={pathData}
-						fill="none"
+					<line
+						x1={link.from.x}
+						y1={link.from.y}
+						x2={link.to.x}
+						y2={link.to.y}
 						stroke={link.color}
-						stroke-width="6"
+						stroke-width="2"
+						stroke-dasharray="8,4"
 						opacity="0.4"
-						class="transition-all duration-300"
-					/>
-
-					<!-- Thin top layer with higher opacity -->
-					<path
-						d={pathData}
-						fill="none"
-						stroke={link.color}
-						stroke-width="2.5"
-						opacity="0.75"
-						filter="url(#glow)"
-						class="transition-all duration-300"
-					/>
-
-					<!-- Dashed accent line -->
-					<path
-						d={pathData}
-						fill="none"
-						stroke="white"
-						stroke-width="1"
-						stroke-dasharray="6,8"
-						opacity="0.5"
 						class="transition-all duration-300"
 					/>
 				{/each}

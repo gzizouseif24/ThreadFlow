@@ -78,6 +78,54 @@ class ProjectsStore {
 		this.save();
 	}
 
+	togglePin(id: string) {
+		this.projects = this.projects.map((p) =>
+			p.id === id ? { ...p, isPinned: !p.isPinned, updatedAt: Date.now() } : p
+		);
+		this.save();
+	}
+
+	linkProjects(projectId1: string, projectId2: string) {
+		// Bi-directional linking
+		this.projects = this.projects.map((p) => {
+			if (p.id === projectId1) {
+				const linkedIds = new Set(p.linkedProjectIds || []);
+				linkedIds.add(projectId2);
+				return { ...p, linkedProjectIds: Array.from(linkedIds), updatedAt: Date.now() };
+			}
+			if (p.id === projectId2) {
+				const linkedIds = new Set(p.linkedProjectIds || []);
+				linkedIds.add(projectId1);
+				return { ...p, linkedProjectIds: Array.from(linkedIds), updatedAt: Date.now() };
+			}
+			return p;
+		});
+		this.save();
+	}
+
+	unlinkProjects(projectId1: string, projectId2: string) {
+		this.projects = this.projects.map((p) => {
+			if (p.id === projectId1 || p.id === projectId2) {
+				const linkedIds = (p.linkedProjectIds || []).filter(
+					id => id !== (p.id === projectId1 ? projectId2 : projectId1)
+				);
+				return { ...p, linkedProjectIds: linkedIds, updatedAt: Date.now() };
+			}
+			return p;
+		});
+		this.save();
+	}
+
+	getLinkedProjects(projectId: string): Project[] {
+		const project = this.projects.find(p => p.id === projectId);
+		if (!project?.linkedProjectIds) return [];
+		return this.projects.filter(p => project.linkedProjectIds!.includes(p.id));
+	}
+
+	get pinnedProjects(): Project[] {
+		return this.projects.filter((p) => p.isPinned);
+	}
+
 	private save() {
 		storage.setProjects(this.projects);
 	}

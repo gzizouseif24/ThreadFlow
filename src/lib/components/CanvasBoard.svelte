@@ -16,6 +16,49 @@
 	const projects = $derived(projectsStore.projects);
 	const rootTasks = $derived(tabsStore.rootTasks);
 
+	// Calculate project links for SVG rendering
+	const projectLinks = $derived.by(() => {
+		const links: Array<{
+			id: string;
+			from: { x: number; y: number };
+			to: { x: number; y: number };
+			color: string;
+		}> = [];
+
+		const processed = new Set<string>();
+
+		projects.forEach((project) => {
+			if (project.linkedProjectIds && project.linkedProjectIds.length > 0) {
+				project.linkedProjectIds.forEach((linkedId) => {
+					// Create unique pair ID to avoid duplicates
+					const pairId = [project.id, linkedId].sort().join('-');
+
+					if (!processed.has(pairId)) {
+						processed.add(pairId);
+
+						const linkedProject = projects.find(p => p.id === linkedId);
+						if (linkedProject) {
+							// Calculate center points of both projects
+							const fromX = project.position.x + (project.width || 350) / 2;
+							const fromY = project.position.y + (project.height || 400) / 2;
+							const toX = linkedProject.position.x + (linkedProject.width || 350) / 2;
+							const toY = linkedProject.position.y + (linkedProject.height || 400) / 2;
+
+							links.push({
+								id: pairId,
+								from: { x: fromX, y: fromY },
+								to: { x: toX, y: toY },
+								color: project.color
+							});
+						}
+					}
+				});
+			}
+		});
+
+		return links;
+	});
+
 	function handleRootTaskDragEnd(tab: Tab, data: { offsetX: number; offsetY: number }) {
 		tabsStore.updatePosition(tab.id, {
 			x: data.offsetX,
@@ -118,6 +161,25 @@
 </script>
 
 <div class="canvas-board relative h-full w-full overflow-hidden" bind:this={canvasRef}>
+	<!-- SVG Layer for Project Links -->
+	{#if projectLinks.length > 0}
+		<svg class="absolute inset-0 pointer-events-none z-[5]" style="width: 100%; height: 100%;">
+			{#each projectLinks as link (link.id)}
+				<line
+					x1={link.from.x}
+					y1={link.from.y}
+					x2={link.to.x}
+					y2={link.to.y}
+					stroke={link.color}
+					stroke-width="2"
+					stroke-dasharray="8,4"
+					opacity="0.4"
+					class="transition-all duration-300"
+				/>
+			{/each}
+		</svg>
+	{/if}
+
 	<!-- Project Cards - Draggable like Task Cards -->
 	{#each projects as project (project.id)}
 		<div

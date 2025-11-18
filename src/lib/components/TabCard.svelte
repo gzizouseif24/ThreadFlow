@@ -16,6 +16,7 @@
 	let isEditing = $state(false);
 	let editContent = $state(tab.content);
 	let imageInput = $state('');
+	let editingImage = $state(false);
 
 	// Generate icon and color based on task content
 	const TaskIcon = $derived(generateIcon(tab.content));
@@ -128,13 +129,33 @@
 			</button>
 		</div>
 	{:else}
-	<!-- Content with generated icon -->
+	<!-- Content with image or generated icon -->
 	{@const Icon = TaskIcon}
 	<div class="mb-2 flex items-start gap-2 w-full">
-		<!-- Generated Icon -->
-		<div class="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-white/60 shadow-sm">
-			<Icon size={20} class={iconColor} />
-		</div>
+		<!-- Image or Generated Icon -->
+		{#if tab.imageUrl}
+			<div class="relative flex-shrink-0 group/img">
+				<img src={tab.imageUrl} alt="" class="h-10 w-10 rounded-lg object-cover shadow-sm" />
+				<button
+					onclick={handleRemoveImage}
+					class="absolute -right-1 -top-1 rounded-full bg-red-500 p-0.5 opacity-0 group-hover/img:opacity-100 transition-opacity"
+					title="Remove image"
+				>
+					<X size={10} class="text-white" />
+				</button>
+			</div>
+		{:else}
+			<button
+				onclick={() => (editingImage = true)}
+				class="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-white/60 shadow-sm hover:bg-white/80 transition group/icon"
+				title="Add image"
+			>
+				<Icon size={20} class={iconColor} />
+				<div class="absolute opacity-0 group-hover/icon:opacity-100 transition-opacity">
+					<ImageIcon size={16} class="text-gray-600" />
+				</div>
+			</button>
+		{/if}
 
 		<button
 			onclick={() => (showDetailModal = true)}
@@ -148,6 +169,46 @@
 			{/if}
 		</button>
 	</div>
+
+	<!-- Image Input (when editing) -->
+	{#if editingImage}
+		<div class="mb-2 flex gap-1">
+			<input
+				type="text"
+				bind:value={imageInput}
+				placeholder="Paste image URL..."
+				class="flex-1 rounded-lg border border-pastel-lavender bg-white/80 px-2 py-1 text-xs focus:border-pastel-lilac focus:outline-none"
+				onkeydown={(e) => {
+					if (e.key === 'Enter') {
+						handleAddImage();
+						editingImage = false;
+					}
+					if (e.key === 'Escape') {
+						editingImage = false;
+						imageInput = '';
+					}
+				}}
+			/>
+			<button
+				onclick={() => {
+					handleAddImage();
+					editingImage = false;
+				}}
+				class="rounded-lg bg-pastel-mint px-2 py-1 text-xs font-semibold transition hover:bg-pastel-mint/80"
+			>
+				Add
+			</button>
+			<button
+				onclick={() => {
+					editingImage = false;
+					imageInput = '';
+				}}
+				class="rounded-lg bg-pastel-pink px-2 py-1 text-xs font-semibold transition hover:bg-pastel-pink/80"
+			>
+				Cancel
+			</button>
+		</div>
+	{/if}
 
 		<!-- Action Buttons -->
 		<div class="flex gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">

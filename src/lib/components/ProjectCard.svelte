@@ -473,10 +473,30 @@ let {
 			{@const Icon = ProjectIcon}
 			<div class="flex items-center justify-between gap-2">
 				<div class="flex items-center gap-2 flex-1">
-					<!-- Generated Project Icon -->
-					<div class="w-12 h-12 rounded-lg bg-white/60 flex items-center justify-center shadow-sm">
-						<Icon size={28} class={projectIconColor} />
-					</div>
+					<!-- Project Image or Generated Icon -->
+					{#if project.imageUrl}
+						<div class="relative group/img">
+							<img src={project.imageUrl} alt="" class="w-12 h-12 rounded-lg object-cover shadow-sm" />
+							<button
+								onclick={startEditingProjectImage}
+								class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg opacity-0 group-hover/img:opacity-100 transition-opacity"
+								title="Change image"
+							>
+								<Image size={20} class="text-white" />
+							</button>
+						</div>
+					{:else}
+						<button
+							onclick={startEditingProjectImage}
+							class="w-12 h-12 rounded-lg bg-white/60 flex items-center justify-center shadow-sm hover:bg-white/80 transition group/icon relative"
+							title="Add image"
+						>
+							<Icon size={28} class={projectIconColor} />
+							<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover/icon:opacity-100 transition-opacity">
+								<Image size={20} class="text-gray-600" />
+							</div>
+						</button>
+					{/if}
 					<button
 						onclick={handleNameEdit}
 						class="flex-1 text-left hover:bg-white/30 rounded-lg px-2 py-1 transition"
@@ -582,10 +602,14 @@ let {
 										<ChevronDown size={14} class="text-gray-600" />
 									</button>
 								</div>
-								<!-- Generated Task Icon -->
-								<div class="flex-shrink-0 w-6 h-6 rounded bg-white/60 flex items-center justify-center">
-									<TaskIcon size={14} class={taskIconColor} />
-								</div>
+								<!-- Task Image or Generated Icon -->
+								{#if task.imageUrl}
+									<img src={task.imageUrl} alt="" class="flex-shrink-0 w-6 h-6 rounded object-cover bg-white/60" />
+								{:else}
+									<div class="flex-shrink-0 w-6 h-6 rounded bg-white/60 flex items-center justify-center">
+										<TaskIcon size={14} class={taskIconColor} />
+									</div>
+								{/if}
 								<p class="flex-1 text-gray-800 {task.isCompleted ? 'line-through opacity-60' : ''}">{task.content}</p>
 							</div>
 
@@ -595,6 +619,7 @@ let {
 									{#if task.isCompleted}<Undo2 size={12} class="text-gray-700" />{:else}<Check size={12} class="text-gray-700" />{/if}
 								</button>
 								<button onclick={() => startEditingTask(task.id, task.content)} class="p-1 rounded bg-pastel-sky hover:bg-pastel-sky/80"><Edit3 size={12} class="text-gray-700" /></button>
+								<button onclick={() => startEditingImage(task.id, task.imageUrl || '')} class="p-1 rounded bg-pastel-lavender hover:bg-pastel-lavender/80"><Image size={12} class="text-gray-700" /></button>
 								<div class="relative move-menu-container">
 									<button onclick={(e) => { e.stopPropagation(); toggleMoveMenu(task.id); }} class="p-1 rounded bg-pastel-lavender hover:bg-pastel-lavender/80"><MapPin size={12} class="text-gray-700" /></button>
 									{#if showMoveMenu === task.id}

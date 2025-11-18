@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { base } from '$app/paths';
-	import { Sparkles, Calendar, Settings, Trash2, LogIn, Sun, Moon } from 'lucide-svelte';
+	import { Sparkles, Calendar, Settings, Trash2, LogIn } from 'lucide-svelte';
 	import { tabsStore } from '$lib/stores/tabs.svelte';
-	import { themeStore } from '$lib/stores/theme.svelte';
 	import JunkDrawer from '$lib/components/JunkDrawer.svelte';
 	import favicon from '$lib/assets/favicon.svg';
 	import '../app.css';
@@ -25,8 +24,8 @@
 				href="{base}/"
 				class="px-4 py-2 rounded-full transition-all backdrop-blur-sm {$page.url.pathname === base + '/' ||
 				$page.url.pathname === base
-					? 'bg-white/60 dark:bg-dark-surface/80'
-					: 'hover:bg-white/40 dark:hover:bg-dark-surface/60'} dark:text-dark-text"
+					? 'bg-white/60'
+					: 'hover:bg-white/40'}"
 			>
 				Canvas
 			</a>
@@ -34,8 +33,8 @@
 				href="{base}/journal/"
 				class="px-4 py-2 rounded-full transition-all backdrop-blur-sm flex items-center gap-1 {$page.url
 					.pathname === base + '/journal/' || $page.url.pathname === base + '/journal'
-					? 'bg-white/60 dark:bg-dark-surface/80'
-					: 'hover:bg-white/40 dark:hover:bg-dark-surface/60'} dark:text-dark-text"
+					? 'bg-white/60'
+					: 'hover:bg-white/40'}"
 			>
 				<Calendar size={18} />
 				Journal
@@ -44,30 +43,18 @@
 
 		<!-- Center: Branding -->
 		<div class="absolute left-1/2 -translate-x-1/2">
-			<h1 class="text-4xl font-bold text-gray-900 dark:text-dark-text drop-shadow-md tracking-tight">Threadflow</h1>
+			<h1 class="text-4xl font-bold text-gray-900 drop-shadow-md tracking-tight">Threadflow</h1>
 		</div>
 
 		<!-- Right: Actions -->
 		<div class="flex items-center gap-2 pointer-events-auto">
 			<button
 				type="button"
-				onclick={() => themeStore.toggle()}
-				class="p-2 hover:bg-white/40 dark:hover:bg-dark-surface/60 rounded-full transition-all backdrop-blur-sm"
-				title={themeStore.theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-			>
-				{#if themeStore.theme === 'light'}
-					<Moon size={20} class="text-gray-700" />
-				{:else}
-					<Sun size={20} class="text-yellow-400" />
-				{/if}
-			</button>
-			<button
-				type="button"
 				onclick={() => (junkDrawerOpen = !junkDrawerOpen)}
-				class="p-2 hover:bg-white/40 dark:hover:bg-dark-surface/60 rounded-full transition-all backdrop-blur-sm relative"
+				class="p-2 hover:bg-white/40 rounded-full transition-all backdrop-blur-sm relative"
 				title="Junk"
 			>
-				<Trash2 size={20} class="text-gray-700 dark:text-dark-text" />
+				<Trash2 size={20} class="text-gray-700" />
 				{#if tabsStore.deletedTabs.length > 0}
 					<span
 						class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center"
@@ -78,10 +65,10 @@
 			</button>
 			<button
 				type="button"
-				class="p-2 hover:bg-white/40 dark:hover:bg-dark-surface/60 rounded-full transition-all backdrop-blur-sm"
+				class="p-2 hover:bg-white/40 rounded-full transition-all backdrop-blur-sm"
 				title="Login"
 			>
-				<LogIn size={20} class="text-gray-700 dark:text-dark-text" />
+				<LogIn size={20} class="text-gray-700" />
 			</button>
 		</div>
 	</div>

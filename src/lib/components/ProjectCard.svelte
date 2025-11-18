@@ -411,7 +411,7 @@ let {
 
 <div
 	bind:this={cardElement}
-	class="project-card group relative rounded-xl border-0 backdrop-blur-sm shadow-md hover:shadow-lg overflow-hidden flex flex-col {isResizing ? '' : 'transition-all duration-300 hover:scale-[1.01]'} {project.isPinned ? 'ring-2 ring-pastel-peach/50 shadow-xl' : ''}"
+	class="project-card group relative rounded-xl border-0 dark:border dark:border-dark-border backdrop-blur-sm shadow-md hover:shadow-lg overflow-hidden flex flex-col {isResizing ? '' : 'transition-all duration-300 hover:scale-[1.01]'} {project.isPinned ? 'ring-2 ring-pastel-peach/50 dark:ring-pastel-peach/70 shadow-xl' : ''}"
 	style="background-color: {project.color}30; width: {project.isExpanded ? project.width : 350}px; height: {project.isExpanded ? project.height : 80}px;"
 >
 	<!-- Pin Badge -->
@@ -429,7 +429,7 @@ let {
 				bind:value={editName}
 				onkeydown={handleKeydown}
 				onblur={saveName}
-				class="w-full px-3 py-1.5 text-lg font-bold bg-white/80 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-gray-500"
+				class="w-full px-3 py-1.5 text-lg font-bold bg-white/80 dark:bg-dark-surface border-2 border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:border-gray-500 dark:focus:border-pastel-lilac dark:text-dark-text"
 				autofocus
 			/>
 		{:else if editingProjectImage}
@@ -441,9 +441,9 @@ let {
 						bind:value={editProjectImageUrl}
 						onkeydown={handleProjectImageKeydown}
 						placeholder="Image URL..."
-						class="flex-1 px-3 py-1.5 text-sm border-2 border-pastel-lavender rounded-lg focus:outline-none focus:border-pastel-lilac bg-white/80"
+						class="flex-1 px-3 py-1.5 text-sm border-2 border-pastel-lavender dark:border-pastel-lilac rounded-lg focus:outline-none focus:border-pastel-lilac bg-white/80 dark:bg-dark-surface dark:text-dark-text dark:placeholder-dark-muted"
 					/>
-					<label class="px-3 py-1.5 text-sm rounded-lg bg-pastel-sky hover:bg-pastel-sky/80 font-semibold cursor-pointer flex items-center gap-1">
+					<label class="px-3 py-1.5 text-sm rounded-lg bg-pastel-sky dark:bg-pastel-sky/80 hover:bg-pastel-sky/80 dark:hover:bg-pastel-sky font-semibold cursor-pointer flex items-center gap-1 dark:text-gray-900">
 						<Upload size={14} />
 						<input
 							type="file"
@@ -456,14 +456,14 @@ let {
 				<div class="flex gap-2">
 					<button
 						onclick={saveProjectImage}
-						class="px-3 py-1.5 text-sm rounded-lg bg-pastel-mint hover:bg-pastel-mint/80 font-semibold flex items-center gap-1"
+						class="px-3 py-1.5 text-sm rounded-lg bg-pastel-mint dark:bg-pastel-mint/80 hover:bg-pastel-mint/80 dark:hover:bg-pastel-mint font-semibold flex items-center gap-1 dark:text-gray-900"
 					>
 						<Link size={14} />
 						Save URL
 					</button>
 					<button
 						onclick={cancelProjectImageEdit}
-						class="px-3 py-1.5 text-sm rounded-lg bg-pastel-pink hover:bg-pastel-pink/80 font-semibold"
+						class="px-3 py-1.5 text-sm rounded-lg bg-pastel-pink dark:bg-pastel-pink/80 hover:bg-pastel-pink/80 dark:hover:bg-pastel-pink font-semibold dark:text-gray-900"
 					>
 						Cancel
 					</button>
@@ -499,18 +499,18 @@ let {
 					{/if}
 					<button
 						onclick={handleNameEdit}
-						class="flex-1 text-left hover:bg-white/30 rounded-lg px-2 py-1 transition"
+						class="flex-1 text-left hover:bg-white/30 dark:hover:bg-dark-card/30 rounded-lg px-2 py-1 transition"
 						title="Click to edit project name"
 					>
-						<h3 class="text-lg font-bold text-gray-800">{project.name}</h3>
+						<h3 class="text-lg font-bold text-gray-800 dark:text-dark-text">{project.name}</h3>
 						{#if linkedProjects.length > 0 && project.isExpanded}
-							<p class="text-xs text-gray-600 flex items-center gap-1 mt-0.5">
+							<p class="text-xs text-gray-600 dark:text-dark-muted flex items-center gap-1 mt-0.5">
 								<Link2 size={12} />
 								{linkedProjects.length} {linkedProjects.length === 1 ? 'link' : 'links'}
 							</p>
 						{/if}
 						{#if project.objective && project.isExpanded}
-							<p class="text-xs text-gray-600 line-clamp-1">{project.objective}</p>
+							<p class="text-xs text-gray-600 dark:text-dark-muted line-clamp-1">{project.objective}</p>
 						{/if}
 					</button>
 					<button
@@ -534,14 +534,14 @@ let {
 	<div class="space-y-2 min-h-[120px] overflow-y-auto pr-1 px-4 flex-1">
 		{#if localTasksOrder.length === 0 && !showTaskInput}
 			<div class="flex items-center justify-center py-10 text-center">
-				<p class="text-gray-400 text-sm">No tasks yet</p>
+				<p class="text-gray-400 dark:text-dark-muted text-sm">No tasks yet</p>
 			</div>
 		{:else}
 			<div class="space-y-2">
 				{#each localTasksOrder as task, index (task.id)}
 					{@const TaskIcon = getTaskIcon(task)}
 					{@const taskIconColor = getTaskIconColor(task)}
-					<div class="task-item bg-white/60 rounded-lg p-2 text-sm group/task hover:bg-white/80 transition-all">
+					<div class="task-item bg-white/60 dark:bg-dark-card/60 rounded-lg p-2 text-sm group/task hover:bg-white/80 dark:hover:bg-dark-card/80 transition-all">
 						{#if editingTaskId === task.id}
 							<!-- Edit Mode -->
 							<input
@@ -549,7 +549,7 @@ let {
 								bind:value={editTaskContent}
 								onkeydown={handleTaskEditKeydown}
 								onblur={saveTaskEdit}
-								class="w-full px-2 py-1 text-sm border border-pastel-lavender rounded focus:outline-none focus:border-pastel-lilac"
+								class="w-full px-2 py-1 text-sm border border-pastel-lavender dark:border-pastel-lilac rounded focus:outline-none focus:border-pastel-lilac dark:bg-dark-surface dark:text-dark-text"
 								autofocus
 							/>
 						{:else if editingImageTaskId === task.id}
@@ -610,7 +610,7 @@ let {
 										<TaskIcon size={14} class={taskIconColor} />
 									</div>
 								{/if}
-								<p class="flex-1 text-gray-800 {task.isCompleted ? 'line-through opacity-60' : ''}">{task.content}</p>
+								<p class="flex-1 text-gray-800 dark:text-dark-text {task.isCompleted ? 'line-through opacity-60' : ''}">{task.content}</p>
 							</div>
 
 							<!-- Mini Actions -->
@@ -646,13 +646,13 @@ let {
 
 		<!-- Add Task Input -->
 		{#if showTaskInput}
-			<div class="bg-white/80 rounded-lg p-2">
+			<div class="bg-white/80 dark:bg-dark-card/80 rounded-lg p-2">
 				<input
 					type="text"
 					bind:value={newTaskContent}
 					onkeydown={handleTaskInputKeydown}
 					placeholder="New task..."
-					class="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-pastel-lilac"
+					class="w-full px-2 py-1 text-sm border border-gray-300 dark:border-dark-border rounded focus:outline-none focus:border-pastel-lilac dark:bg-dark-surface dark:text-dark-text dark:placeholder-dark-muted"
 					autofocus
 				/>
 			</div>
@@ -663,7 +663,7 @@ let {
 			<button
 				type="button"
 				onclick={() => (showTaskInput = true)}
-				class="w-full py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-white/40 rounded-lg transition-all border border-dashed border-gray-300 hover:border-gray-400"
+				class="w-full py-2 text-sm text-gray-500 dark:text-dark-muted hover:text-gray-700 dark:hover:text-dark-text hover:bg-white/40 dark:hover:bg-dark-card/40 rounded-lg transition-all border border-dashed border-gray-300 dark:border-dark-border hover:border-gray-400 dark:hover:border-dark-border"
 			>
 				+ Add Task
 			</button>
@@ -673,7 +673,7 @@ let {
 
 	<!-- Action Buttons (show on hover) - Fixed at bottom -->
 	{#if project.isExpanded}
-	<div class="flex gap-1.5 mt-3 pt-3 px-4 pb-4 border-t border-white/30 opacity-0 transition-opacity group-hover:opacity-100 flex-shrink-0">
+	<div class="flex gap-1.5 mt-3 pt-3 px-4 pb-4 border-t border-white/30 dark:border-dark-border opacity-0 transition-opacity group-hover:opacity-100 flex-shrink-0">
 		<button
 			type="button"
 			onclick={handleTogglePin}

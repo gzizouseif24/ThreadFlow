@@ -91,9 +91,9 @@
 </script>
 
 <div
-	class="tab-card group relative rounded-xl border border-white/30 backdrop-blur-md transition-all duration-300 hover:scale-[1.03] hover:-translate-y-1 {tab.isCompleted
-		? 'bg-white/20 opacity-70 shadow-sm'
-		: 'bg-white/30 shadow-lg hover:shadow-2xl hover:bg-white/40'}"
+	class="tab-card group relative rounded-xl border border-white/30 dark:border-dark-border backdrop-blur-md transition-all duration-300 hover:scale-[1.03] hover:-translate-y-1 {tab.isCompleted
+		? 'bg-white/20 dark:bg-dark-card/40 opacity-70 shadow-sm'
+		: 'bg-white/30 dark:bg-dark-card/60 shadow-lg hover:shadow-2xl hover:bg-white/40 dark:hover:bg-dark-card/80'}"
 	style="width: {cardWidth}px; padding: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);"
 >
 	<!-- Pin Badge -->
@@ -107,7 +107,7 @@
 	{#if isEditing}
 		<textarea
 			bind:value={editContent}
-			class="w-full resize-none rounded-lg border-2 border-pastel-lavender bg-white/80 p-2 text-sm focus:border-pastel-lilac focus:outline-none"
+			class="w-full resize-none rounded-lg border-2 border-pastel-lavender dark:border-pastel-lilac bg-white/80 dark:bg-dark-surface p-2 text-sm dark:text-dark-text focus:border-pastel-lilac focus:outline-none"
 			rows="2"
 			onkeydown={(e) => {
 				if (e.key === 'Escape') handleCancel();
@@ -117,13 +117,13 @@
 		<div class="mt-2 flex gap-2">
 			<button
 				onclick={handleSave}
-				class="rounded-lg bg-pastel-mint px-3 py-1 text-xs font-semibold transition hover:bg-pastel-mint/80"
+				class="rounded-lg bg-pastel-mint dark:bg-pastel-mint/80 px-3 py-1 text-xs font-semibold transition hover:bg-pastel-mint/80 dark:hover:bg-pastel-mint dark:text-gray-900"
 			>
 				Save
 			</button>
 			<button
 				onclick={handleCancel}
-				class="rounded-lg bg-pastel-pink px-3 py-1 text-xs font-semibold transition hover:bg-pastel-pink/80"
+				class="rounded-lg bg-pastel-pink dark:bg-pastel-pink/80 px-3 py-1 text-xs font-semibold transition hover:bg-pastel-pink/80 dark:hover:bg-pastel-pink dark:text-gray-900"
 			>
 				Cancel
 			</button>
@@ -147,12 +147,12 @@
 		{:else}
 			<button
 				onclick={() => (editingImage = true)}
-				class="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-white/60 shadow-sm hover:bg-white/80 transition group/icon"
+				class="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-white/60 dark:bg-dark-card shadow-sm hover:bg-white/80 dark:hover:bg-dark-card/80 transition group/icon"
 				title="Add image"
 			>
 				<Icon size={20} class={iconColor} />
 				<div class="absolute opacity-0 group-hover/icon:opacity-100 transition-opacity">
-					<ImageIcon size={16} class="text-gray-600" />
+					<ImageIcon size={16} class="text-gray-600 dark:text-dark-muted" />
 				</div>
 			</button>
 		{/if}
@@ -161,11 +161,11 @@
 			onclick={() => (showDetailModal = true)}
 			class="flex-1 text-left hover:opacity-80 transition"
 		>
-			<p class="text-sm text-gray-800 break-words {tab.isCompleted ? 'line-through' : ''}">
+			<p class="text-sm text-gray-800 dark:text-dark-text break-words {tab.isCompleted ? 'line-through' : ''}">
 				{tab.content}
 			</p>
 			{#if tab.notes}
-				<p class="text-xs text-gray-500 mt-1 line-clamp-1">{tab.notes}</p>
+				<p class="text-xs text-gray-500 dark:text-dark-muted mt-1 line-clamp-1">{tab.notes}</p>
 			{/if}
 		</button>
 	</div>
@@ -177,7 +177,7 @@
 				type="text"
 				bind:value={imageInput}
 				placeholder="Paste image URL..."
-				class="flex-1 rounded-lg border border-pastel-lavender bg-white/80 px-2 py-1 text-xs focus:border-pastel-lilac focus:outline-none"
+				class="flex-1 rounded-lg border border-pastel-lavender dark:border-pastel-lilac bg-white/80 dark:bg-dark-surface px-2 py-1 text-xs dark:text-dark-text dark:placeholder-dark-muted focus:border-pastel-lilac focus:outline-none"
 				onkeydown={(e) => {
 					if (e.key === 'Enter') {
 						handleAddImage();
@@ -194,7 +194,7 @@
 					handleAddImage();
 					editingImage = false;
 				}}
-				class="rounded-lg bg-pastel-mint px-2 py-1 text-xs font-semibold transition hover:bg-pastel-mint/80"
+				class="rounded-lg bg-pastel-mint dark:bg-pastel-mint/80 px-2 py-1 text-xs font-semibold transition hover:bg-pastel-mint/80 dark:hover:bg-pastel-mint dark:text-gray-900"
 			>
 				Add
 			</button>
@@ -203,7 +203,7 @@
 					editingImage = false;
 					imageInput = '';
 				}}
-				class="rounded-lg bg-pastel-pink px-2 py-1 text-xs font-semibold transition hover:bg-pastel-pink/80"
+				class="rounded-lg bg-pastel-pink dark:bg-pastel-pink/80 px-2 py-1 text-xs font-semibold transition hover:bg-pastel-pink/80 dark:hover:bg-pastel-pink dark:text-gray-900"
 			>
 				Cancel
 			</button>
@@ -235,23 +235,23 @@
 					<MapPin size={14} class="text-white" />
 				</button>
 				{#if showProjectMenu}
-					<div class="absolute bottom-full left-0 mb-1 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-[9999] min-w-[180px]">
+					<div class="absolute bottom-full left-0 mb-1 bg-white dark:bg-dark-surface rounded-lg shadow-xl border border-gray-200 dark:border-dark-border py-1 z-[9999] min-w-[180px]">
 						{#if allProjects.length > 0}
-							<div class="px-2 py-1 text-xs font-semibold text-gray-500 border-b border-gray-200">Add to project:</div>
+							<div class="px-2 py-1 text-xs font-semibold text-gray-500 dark:text-dark-muted border-b border-gray-200 dark:border-dark-border">Add to project:</div>
 							{#each allProjects as project}
 								<button
 									onclick={(e) => {
 										e.stopPropagation();
 										addToProject(project.id);
 									}}
-									class="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
+									class="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-dark-card flex items-center gap-2 dark:text-dark-text"
 								>
 									<div class="w-4 h-4 rounded-full" style="background-color: {project.color};"></div>
 									{project.name}
 								</button>
 							{/each}
 						{:else}
-							<div class="px-3 py-2 text-xs text-gray-500">No projects yet</div>
+							<div class="px-3 py-2 text-xs text-gray-500 dark:text-dark-muted">No projects yet</div>
 						{/if}
 					</div>
 				{/if}

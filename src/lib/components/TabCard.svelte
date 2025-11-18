@@ -134,8 +134,8 @@
 	<div class="mb-2 flex items-start gap-2 w-full">
 		<!-- Image or Generated Icon -->
 		{#if tab.imageUrl}
-			<div class="relative flex-shrink-0 group/img">
-				<img src={tab.imageUrl} alt="" class="h-10 w-10 rounded-lg object-cover shadow-sm" />
+			<div class="relative flex-shrink-0 group/img h-10 w-10 rounded-lg overflow-hidden">
+				<img src={tab.imageUrl} alt="" class="h-full w-full object-cover shadow-sm" />
 				<button
 					onclick={handleRemoveImage}
 					class="absolute -right-1 -top-1 rounded-full bg-red-500 p-0.5 opacity-0 group-hover/img:opacity-100 transition-opacity"

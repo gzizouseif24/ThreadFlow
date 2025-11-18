@@ -475,8 +475,8 @@ let {
 				<div class="flex items-center gap-2 flex-1">
 					<!-- Project Image or Generated Icon -->
 					{#if project.imageUrl}
-						<div class="relative group/img">
-							<img src={project.imageUrl} alt="" class="w-12 h-12 rounded-lg object-cover shadow-sm" />
+						<div class="relative group/img w-12 h-12 rounded-lg overflow-hidden">
+							<img src={project.imageUrl} alt="" class="w-full h-full object-cover shadow-sm" />
 							<button
 								onclick={startEditingProjectImage}
 								class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg opacity-0 group-hover/img:opacity-100 transition-opacity"
@@ -604,7 +604,9 @@ let {
 								</div>
 								<!-- Task Image or Generated Icon -->
 								{#if task.imageUrl}
-									<img src={task.imageUrl} alt="" class="flex-shrink-0 w-6 h-6 rounded object-cover bg-white/60" />
+									<div class="flex-shrink-0 w-6 h-6 rounded overflow-hidden bg-white/60">
+										<img src={task.imageUrl} alt="" class="w-full h-full object-cover" />
+									</div>
 								{:else}
 									<div class="flex-shrink-0 w-6 h-6 rounded bg-white/60 flex items-center justify-center">
 										<TaskIcon size={14} class={taskIconColor} />

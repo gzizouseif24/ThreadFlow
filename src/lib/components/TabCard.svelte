@@ -5,6 +5,7 @@
 	import TaskDetailModal from './TaskDetailModal.svelte';
 	import confetti from 'canvas-confetti';
 	import { Check, Undo2, Pin, MapPin, Edit3, Trash2, Image as ImageIcon, X, FolderPlus } from 'lucide-svelte';
+	import { generateIcon, getIconColor } from '$lib/utils/iconGenerator';
 
 	interface Props {
 		tab: Tab;
@@ -15,6 +16,10 @@
 	let isEditing = $state(false);
 	let editContent = $state(tab.content);
 	let imageInput = $state('');
+
+	// Generate icon and color based on task content
+	const TaskIcon = $derived(generateIcon(tab.content));
+	const iconColor = $derived(getIconColor(tab.content));
 
 	// Calculate card width based on content length - more granular
 	const cardWidth = $derived.by(() => {
@@ -123,28 +128,13 @@
 			</button>
 		</div>
 	{:else}
-	<!-- Content with optional icon/logo -->
+	<!-- Content with generated icon -->
+	{@const Icon = TaskIcon}
 	<div class="mb-2 flex items-start gap-2 w-full">
-		<!-- Image as Icon/Logo -->
-		{#if tab.imageUrl}
-			<div class="relative flex-shrink-0">
-				<img
-					src={tab.imageUrl}
-					alt="Icon"
-					class="h-10 w-10 rounded-lg object-cover shadow-sm"
-				/>
-				<button
-					onclick={(e) => {
-						e.stopPropagation();
-						handleRemoveImage();
-					}}
-					class="absolute -right-1 -top-1 rounded-full bg-white/90 p-0.5 shadow-md opacity-0 group-hover:opacity-100 transition hover:bg-white"
-					title="Remove image"
-				>
-					<X size={10} class="text-gray-700" />
-				</button>
-			</div>
-		{/if}
+		<!-- Generated Icon -->
+		<div class="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-white/60 shadow-sm">
+			<Icon size={20} class={iconColor} />
+		</div>
 
 		<button
 			onclick={() => (showDetailModal = true)}
@@ -158,21 +148,6 @@
 			{/if}
 		</button>
 	</div>
-
-		<!-- Image Input (only show when no image) -->
-		{#if !tab.imageUrl}
-			<div class="mb-2 opacity-0 transition-opacity group-hover:opacity-100">
-				<input
-					type="text"
-					bind:value={imageInput}
-					placeholder="Image URL..."
-					class="w-full rounded border border-pastel-lavender bg-white/60 px-2 py-1 text-xs focus:border-pastel-lilac focus:outline-none"
-					onkeydown={(e) => {
-						if (e.key === 'Enter') handleAddImage();
-					}}
-				/>
-			</div>
-		{/if}
 
 		<!-- Action Buttons -->
 		<div class="flex gap-1.5 opacity-0 transition-opacity group-hover:opacity-100">
